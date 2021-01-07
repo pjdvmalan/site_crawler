@@ -1,0 +1,11 @@
+# https://pypi.org/project/ultimate-sitemap-parser/
+ultimate_sitemap_parser==0.5
+
+# https://pypi.org/project/pandas/
+pandas==1.1.5
+
+# https://pypi.org/project/argparse/
+argparse==1.4.0
+
+# https://pypi.org/project/selenium/
+selenium==3.141.0

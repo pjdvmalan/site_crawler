@@ -1,0 +1,9 @@
+# Install base requirements.
+-r requirements.txt
+
+# Install development specific requirements.
+# https://pypi.org/project/flake8/
+flake8==3.8.4
+
+# https://pypi.org/project/pylint/
+pylint==2.6.0
