@@ -21,7 +21,7 @@
 - `source venv/bin/activate`
 - Install production dependencies
     - `pip install -r requirements.txt`
-- Install dev dependencies
+- Or install prod and dev dependencies at once
     - `pip install requirements-dev.txt`
 
 ## Configuration
