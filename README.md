@@ -87,7 +87,7 @@ To print help, run:
 
 ![Timing overview](https://www.w3.org/TR/navigation-timing/timing-overview.png)
 
-| Metric          | Attribute        | Attribute         | Summary                                                                                                                                                                                                                                                        |
+| Metric          | End event        | Start event       | Summary                                                                                                                                                                                                                                                        |
 | --------------- | ---------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total           | `loadEventStart` | `navigationStart` | The time taken for the page to load, from clicking on the link until fully loaded in the browser.                                                                                                                                                              |
 | Data transfer   | `responseEnd`    | `responseStart`   | The time taken to download the page, from first byte received, to last.                                                                                                                                                                                        |
