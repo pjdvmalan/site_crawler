@@ -1,6 +1,5 @@
 # Site Crawler - website performance checker
-
-Real user monitoring (RUM) website performance analysis tool.
+> Real user monitoring (RUM) website performance analysis tool
 
 ## Features
 
