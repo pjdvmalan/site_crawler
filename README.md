@@ -5,35 +5,56 @@
 
 - List all URLs referenced in a site's `sitemap.xml` file.
 - Bootstrap a site's cache.
-- Report on page performance metrics.
+- Report on page performance metrics using the browser's builtin metrics on `window.performance`
 
 ## Installation
 
-### Setup browser and web driver
+### Setup web driver
 
 - Install Firefox
-- `brew install geckodriver`
+- Install web driver
+    ```sh
+    brew install geckodriver
+    ```
 
 ### Setup virtual environment 
 
-- `brew install python@3`
-- `python3 -m venv venv`
-- `source venv/bin/activate`
+- Install Python
+    ```sh 
+    brew install python@3
+
+    sudo apt-get update && sudo apt-install python3
+    ```
+- Clone the repo.
+- Create a virtual environment in the repo.
+    ```sh
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 - Install production dependencies
-    - `pip install -r requirements.txt`
+    ```sh
+    pip install -r requirements.txt
+    ```
 - Or install prod and dev dependencies at once
-    - `pip install requirements-dev.txt`
+    ```sh
+    pip install requirements-dev.txt
+    ```
 
-## Configuration
+### Configuration
 
-- Copy `config_local_template.py`, name it `config_local.py`
-- Update the parameters.
+- Make a local config.
+    ```sh
+    cp config_local_template.py config_local.py
+    ```
+- Set your parameters.
 
 ## Usage
 
+Run commands inside the virtual environment.
+
 For help, execute:
 
-```
+```sh
 ./crawl_site.py -h
 ```
 
@@ -54,6 +75,7 @@ For help, execute:
 
 ## Resources
 
+- [Window.performance - Web APIs](https://developer.mozilla.org/en-US/docs/Web/API/Window/performance) in Mozilla dev docs.
 - [Navigation Timing](https://www.w3.org/TR/navigation-timing)
 
 ## License
