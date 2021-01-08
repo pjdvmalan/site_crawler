@@ -33,7 +33,7 @@ sudo apt-get install firefox-geckodriver
 
 Install Python 3:
 
-```sh 
+```sh
 # macOS
 brew install python@3
 
@@ -52,11 +52,12 @@ source venv/bin/activate
 ```
 
 Install production dependencies:
+
 ```sh
 pip install -r requirements.txt
 ```
 
-Or, insall prod and dev dependencies at once:
+Or, install prod and dev dependencies at once:
 
 ```sh
 pip install requirements-dev.txt
@@ -99,7 +100,7 @@ To print help, run:
 
 ## Resources
 
-- [Window.performance - Web APIs](https://developer.mozilla.org/en-US/docs/Web/API/Window/performance) in Mozilla dev docs.
+- [Window.performance](https://developer.mozilla.org/en-US/docs/Web/API/Window/performance) in Mozilla dev docs.
 - [Navigation Timing](https://www.w3.org/TR/navigation-timing)
 
 ## License
