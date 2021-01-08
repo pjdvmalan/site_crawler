@@ -3,25 +3,43 @@
 
 ## Features
 
-- List all URLs referenced in a site's site.xml.
+- List all URLs referenced in a site's `sitemap.xml` file.
 - Bootstrap a site's cache.
 - Report on page performance metrics.
 
 ## Installation
 
-- `brew install geckodriver` (for Firefox)
+### Setup browser and web driver
+
+- Install Firefox
+- `brew install geckodriver`
+
+### Setup virtual environment 
+
+- `brew install python@3`
 - `python3 -m venv venv`
-- `. venv/bin/activate`
-- `pip install -r requirements.txt` (or `requirements-dev.txt` in development).
-- Copy `config_local_template.py`, name it `config_local.py` and update the parameters.
+- `source venv/bin/activate`
+- Install production dependencies
+    - `pip install -r requirements.txt`
+- Install dev dependencies
+    - `pip install requirements-dev.txt`
+
+## Configuration
+
+- Copy `config_local_template.py`, name it `config_local.py`
+- Update the parameters.
 
 ## Usage
 
-Execute `./crawl_site.py -h` for help.
+For help, execute:
+
+```
+./crawl_site.py -h
+```
 
 ## Metrics
 
-![alt text](https://www.w3.org/TR/navigation-timing/timing-overview.png)
+![Timing overview](https://www.w3.org/TR/navigation-timing/timing-overview.png)
 
 |  Measure (s) | Attribute | Attribute | Summary |
 | ------------- | ------------- | ------------- | ------------- |
