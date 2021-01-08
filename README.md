@@ -60,7 +60,7 @@ pip install -r requirements.txt
 Or, install prod and dev dependencies at once:
 
 ```sh
-pip install requirements-dev.txt
+pip install -r requirements-dev.txt
 ```
 
 ### Configure
