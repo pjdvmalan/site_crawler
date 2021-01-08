@@ -46,7 +46,7 @@ For help, execute:
 | Total | loadEventStart | navigationStart | The time taken for the page to load, from clicking on the link until fully loaded in the browser. |
 | Data transfer | responseEnd | responseStart | The time taken to download the page, from first byte received, to last. |
 | Latency | responseStart | fetchStart | How long it takes the response to get to to the browser. This includes the time it takes for the request to get to the server, the time it takes the server to render a response, and the time until the first byte of that response gets back to the browser. |
-| Rediretion | redirectEnd | redirectStart | Overhead that is added by HTTP redirects. |
+| Redirection | redirectEnd | redirectStart | Overhead that is added by HTTP redirects. |
 | White Screen | responseStart | navigationStart |  |
 | DOM Rendering | domComplete | domLoading |  |
 | Request | responseEnd | requestStart |  |
