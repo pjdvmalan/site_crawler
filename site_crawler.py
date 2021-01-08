@@ -66,7 +66,7 @@ def main(args):
         if results:
             analysis_report(results)
         else:
-            logging.warn('No processed URLs to report on')
+            logging.warning('No processed URLs to report on')
 
 
 if __name__ == '__main__':
