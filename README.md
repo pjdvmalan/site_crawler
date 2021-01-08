@@ -67,7 +67,7 @@ pip install -r requirements-dev.txt
 
 - Create local config.
     ```sh
-    cp config_local_template.py config_local.py
+    cp etc/config_local_template.py etc/config_local.py
     ```
 - Set your parameters in the new file.
 
@@ -87,16 +87,16 @@ To print help, run:
 
 ![Timing overview](https://www.w3.org/TR/navigation-timing/timing-overview.png)
 
-| Metric          | Attribute        | Attribute         | Summary                                                                                           |
-| --------------- | ---------------- | ----------------- | ------------------------------------------------------------------------------------------------- |
-| Total           | `loadEventStart` | `navigationStart` | The time taken for the page to load, from clicking on the link until fully loaded in the browser. |
-| Data transfer   | `responseEnd`    | `responseStart`   | The time taken to download the page, from first byte received, to last.                           |
+| Metric          | Attribute        | Attribute         | Summary                                                                                                                                                                                                                                                        |
+| --------------- | ---------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Total           | `loadEventStart` | `navigationStart` | The time taken for the page to load, from clicking on the link until fully loaded in the browser.                                                                                                                                                              |
+| Data transfer   | `responseEnd`    | `responseStart`   | The time taken to download the page, from first byte received, to last.                                                                                                                                                                                        |
 | Latency         | `responseStart`  | `fetchStart`      | How long it takes the response to get to to the browser. This includes the time it takes for the request to get to the server, the time it takes the server to render a response, and the time until the first byte of that response gets back to the browser. |
-| Redirection     | `redirectEnd`    | `redirectStart`   | Overhead that is added by HTTP redirects.                                                         |
-| White Screen    | `responseStart`  | `navigationStart` |                                                                                                   |
-| DOM Rendering   | `domComplete`    | `domLoading`      |                                                                                                   |
-| Request         | `responseEnd`    | `requestStart`    |                                                                                                   |
-| DOM Interactive | `domComplete`    | `domInteractive`  |                                                                                                   |
+| Redirection     | `redirectEnd`    | `redirectStart`   | Overhead that is added by HTTP redirects.                                                                                                                                                                                                                      |
+| White Screen    | `responseStart`  | `navigationStart` |                                                                                                                                                                                                                                                                |
+| DOM Rendering   | `domComplete`    | `domLoading`      |                                                                                                                                                                                                                                                                |
+| Request         | `responseEnd`    | `requestStart`    |                                                                                                                                                                                                                                                                |
+| DOM Interactive | `domComplete`    | `domInteractive`  |                                                                                                                                                                                                                                                                |
 
 ## Resources
 
