@@ -1,8 +1,12 @@
 #!/usr/bin/env python
-
+"""
+Site crawler application.
+"""
 from usp.tree import sitemap_tree_for_homepage as site_map_tree
+
 from lib import process_arguments, configure_browser, analysis_report, logging, process_url
 from etc import config
+
 
 args = process_arguments()
 browser = configure_browser()
