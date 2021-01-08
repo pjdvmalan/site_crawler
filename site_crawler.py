@@ -42,6 +42,7 @@ def main(args):
     Command-line entrypoint to process a URL or sitemap and show a report if needed.
     """
     browser = configure_browser()
+    results = None
 
     try:
         if args.url:
