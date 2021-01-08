@@ -5,21 +5,15 @@ Real user monitoring (RUM) website performance analysis tool.
 ## Features
 
 - List all URLs referenced in a site's site.xml.
-
 - Bootstrap a site's cache.
-
 - Report on page performance metrics.
 
 ## Installation
 
-- brew install geckodriver (for Firefox)
-
-- python3 -m venv venv
-
-- . venv/bin/activate
-
-- pip install -r requirements.txt (or _requirements-dev.txt_ in development).
-
+- `brew install geckodriver` (for Firefox)
+- `python3 -m venv venv`
+- `. venv/bin/activate`
+- `pip install -r requirements.txt` (or `requirements-dev.txt` in development).
 - Copy `config_local_template.py`, name it `config_local.py` and update the parameters.
 
 ## Usage
