@@ -8,6 +8,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.common.exceptions import TimeoutException
 import argparse
 import pandas as pd
+import sidetable
 from etc import config
 
 # usp.tree logging cannot be disabled in the standard way.
@@ -93,10 +94,13 @@ def analysis_report(data):
     print('\nSummary:')
     print(df.describe())
     print('\n--------------------------------------')
-    print('Mean:')
-    print(df.groupby('Grouping', as_index=False)[['total']].mean())
-    print('\n--------------------------------------')
     print('Max:')
-    print(df.groupby('Grouping', as_index=False)[['total']].max())
+    print(df.groupby('Grouping', as_index=True)[['total']].max())
+    print('\n--------------------------------------')
+    print('Mean:')
+    print(df.groupby('Grouping', as_index=True)[['total']].mean())
+    print('\n--------------------------------------')
+    print('Category distribution:')
+    print(df.stb.freq(['Grouping']))
+    df.nlargest(100, 'total').to_csv('analysis_report.csv')
     print('\nWorst performing pages reported in: analysis_report.csv\n')
-    df.nlargest(15, 'total').to_csv('analysis_report.csv')

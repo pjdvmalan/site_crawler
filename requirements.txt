@@ -9,3 +9,6 @@ argparse==1.4.0
 
 # https://pypi.org/project/selenium/
 selenium==3.141.0
+
+# https://pypi.org/project/sidetable/
+sidetable==0.8.0
