@@ -40,6 +40,7 @@ def process_arguments():
     parser = argparse.ArgumentParser('Process website URLs referenced in sitemap.xml')
 
     parser.add_argument('-l', '--list', action='store_true', help='List URLs referenced in sitemap.xml.')
+    parser.add_argument('-a', '--skip_analysis', action='store_true', help='Do not analyse pages.')
     parser.add_argument('-r', '--report', action='store_true', help='Report results.')
     parser.add_argument('-u', '--url', help='Process single URL.')
     parser.add_argument('-s', '--siteurl', help='Process specified website.')
