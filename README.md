@@ -107,4 +107,4 @@ Metrics reported on in this project are shown below, ordered from focusing on th
 
 ## License
 
-Released under [MIT](/LICENSE) by [@pjdvmalan](https://github.com/pjdvmalan)
+Released under [MIT](/LICENSE) by [@pjdvmalan](https://github.com/pjdvmalan).
