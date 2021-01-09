@@ -1,6 +1,10 @@
 # Site Crawler - website performance checker
 > Real user monitoring (RUM) website performance analysis tool
 
+[![Python](https://img.shields.io/badge/Python-3-blue?logo=python&logoColor=white)](https://python.org)
+[![GitHub tag](https://img.shields.io/github/tag/pjdvmalan/site_crawler?include_prereleases=&sort=semver)](https://github.com/pjdvmalan/site_crawler/releases/)
+[![License - MIT](https://img.shields.io/badge/License-MIT-blue)](#license)
+
 ## Features
 
 - List all URLs referenced in a site's `sitemap.xml` file.
