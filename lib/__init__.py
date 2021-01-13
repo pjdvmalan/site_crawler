@@ -31,8 +31,8 @@ return timings;
 """
 
 COLUMNS = [
-    'url', 'Grouping', 'total', 'data_transfer', 'latency', 'redirection', 'white_screen', 'dom_rendering', 'request',
-    'dom_interactive'
+    'url', 'Grouping', 'total', 'data_transfer', 'latency', 'redirection', 'white_screen', 'page_rendering', 'request',
+    'time_to_interactive'
 ]
 
 
@@ -82,9 +82,9 @@ def process_timings(timings):
     latency = (timings['responseStart'] - timings['fetchStart']) / MILLISECONDS
     redirection = (timings['redirectEnd'] - timings['redirectStart']) / MILLISECONDS
     white_screen = (timings['responseStart'] - timings['navigationStart']) / MILLISECONDS
-    dom_rendering = (timings['domComplete'] - timings['domLoading']) / MILLISECONDS
+    page_rendering = (timings['domComplete'] - timings['domLoading']) / MILLISECONDS
     request_span = (timings['responseEnd'] - timings['requestStart']) / MILLISECONDS
-    dom_interactive = (timings['domComplete'] - timings['domInteractive']) / MILLISECONDS
+    time_to_interactive = (timings['domInteractive'] - timings['navigationStart']) / MILLISECONDS
 
     return {
         'total': total,
@@ -92,9 +92,9 @@ def process_timings(timings):
         'latency': latency,
         'redirection': redirection,
         'white_screen': white_screen,
-        'dom_rendering': dom_rendering,
+        'page_rendering': page_rendering,
         'request': request_span,
-        'dom_interactive': dom_interactive
+        'time_to_interactive': time_to_interactive
     }
 
 
