@@ -43,7 +43,7 @@ brew install python@3
 
 # Debian/Ubuntu
 sudo apt-get update
-sudo apt-install python3
+sudo apt-get install python3
 ```
 
 ### Install project packages
