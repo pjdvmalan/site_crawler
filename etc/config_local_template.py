@@ -1,6 +1,14 @@
+"""
+Configuration file template.
+
+Make a file copy and name it 'config.local.py'.
+
+NB: All values in lower case.
+"""
+
 # The default base URL, required.
-target_url = None
+TARGER_URL = None
 # URL paths to be excluded.
-exclude_paths = []
+EXCLUDE_PATHS = []
 # Report groupings.
-df_group_by = {}
+DF_GROUP_BY = {}
