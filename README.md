@@ -1,4 +1,6 @@
+
 # Site Crawler - website performance checker
+
 > Real User Monitoring (RUM) website performance analysis tool
 
 [![Python](https://img.shields.io/badge/Python-3-blue?logo=python&logoColor=white)](https://python.org)
@@ -69,9 +71,11 @@ pip install -r requirements-dev.txt
 ### Configure
 
 - Create local config.
+
     ```sh
     cp etc/config_local_template.py etc/config_local.py
     ```
+
 - Set your parameters in the new file.
 
 ## Usage

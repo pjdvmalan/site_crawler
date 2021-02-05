@@ -1,7 +1,7 @@
 """
 Configuration file template.
 
-Make a file copy and name it 'config.local.py'.
+Make a file copy and name it 'config_local.py' this file will be unversioned.
 
 NB: All values in lower case.
 """

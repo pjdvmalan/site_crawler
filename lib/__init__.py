@@ -328,7 +328,7 @@ def write_report_output(source_url_path, data_frame):
         os.mkdir(dir_path)
 
     # Output main results.
-    file_name = 'analysis_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))
+    file_name = 'analysis_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
     full_path = '{}{}'.format(dir_path, file_name)
 
     data_frame.to_csv(path_or_buf=full_path, index=False)
