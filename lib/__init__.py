@@ -51,11 +51,11 @@ RESOURCE_IMAGES = ['.apng', '.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg',
                    '.bmp', '.ico', '.cur', '.tif', '.tiff']
 
 COLUMNS = [
-    'performance', 'accessibility', 'best_practices', 'seo', 'first_contentful_paint', 'first_contentful_paint_score',
-    'speed_index', 'speed_index_score', 'largest_contentful_paint', 'largest_contentful_paint_score', 'interactive',
-    'interactive_score', 'total_blocking_time', 'total_blocking_time_score', 'cumulative_layout_shift',
-    'cumulative_layout_shift_score', 'third_party_wasted', 'third_party_wasted_size',
-    'time', 'url', 'grouping', 'server', 'browser', 'usable', 'total', 'data_transfer', 'redirected', 'dom',
+    'time', 'url', 'performance', 'accessibility', 'best_practices', 'seo', 'first_contentful_paint',
+    'first_contentful_paint_score', 'speed_index', 'speed_index_score', 'largest_contentful_paint',
+    'largest_contentful_paint_score', 'interactive', 'interactive_score', 'total_blocking_time',
+    'total_blocking_time_score', 'cumulative_layout_shift', 'cumulative_layout_shift_score', 'third_party_wasted',
+    'third_party_wasted_size', 'grouping', 'server', 'browser', 'usable', 'total', 'data_transfer', 'redirected', 'dom',
     'img', 'img_sec', 'img_size', 'css', 'css_sec', 'css_size', 'script', 'script_sec', 'script_size', 'font',
     'font_sec', 'font_size', 'xhrt', 'xhrt_sec', 'xhrt_size'
 ]
