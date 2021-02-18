@@ -1,5 +1,6 @@
-"""Class to manage Google PageSpeed Insights."""
-
+"""
+Class to manage Google PageSpeed Insights.
+"""
 import json
 import logging
 import time
@@ -8,7 +9,6 @@ import requests
 from etc import config
 
 
-# logging.disable(logging.INFO)
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 GOOGLE_PS_API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
@@ -51,6 +51,7 @@ class GoogleInsights:
             logging.error('Google Insights API: Call limit reached.')
 
         else:
+            logging.error('Google Insights API: Could not process request, URL: %s', url)
             logging.error('Google Insights API: Could not process request, code: %s', res.status_code)
             res = None
 

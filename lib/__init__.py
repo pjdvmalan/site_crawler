@@ -2,19 +2,15 @@
 Initialization file for library module.
 """
 import argparse
-from csv import DictWriter
 import datetime
 import logging
-import os
 from urllib.parse import urlparse
 
-import pandas as pd
 import requests
 from usp.tree import sitemap_tree_for_homepage as site_map_tree
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
-import sidetable
 
 from etc import config
 from .url_management import UrlManagement
@@ -23,7 +19,6 @@ from .google_insights import GoogleInsights
 # usp.tree logging cannot be disabled in the standard way.
 logging.disable(logging.INFO)
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-pd.set_option('display.precision', 2)
 
 google_insights = GoogleInsights()
 url_mgmt = UrlManagement()
@@ -50,7 +45,7 @@ RESOURCE_FONTS = ['otf', 'ttf', 'eot', 'woff', 'woff2']
 RESOURCE_IMAGES = ['.apng', '.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.svg', '.webp',
                    '.bmp', '.ico', '.cur', '.tif', '.tiff']
 
-COLUMNS = [
+COLUMNS_ANALYSIS = [
     'time', 'url', 'performance', 'accessibility', 'best_practices', 'seo', 'first_contentful_paint',
     'first_contentful_paint_score', 'speed_index', 'speed_index_score', 'largest_contentful_paint',
     'largest_contentful_paint_score', 'interactive', 'interactive_score', 'total_blocking_time',
@@ -269,7 +264,7 @@ def process_url(browser, url):
     request = requests.get(url)
 
     if request.status_code != 200:
-        url_mgmt.unreachable_pages_list(url, request.status_code)
+        url_mgmt.unreachable_pages(url, request.status_code)
         logging.error('Error loading: %s - status: %s', url, request.status_code)
 
         return {}
@@ -327,64 +322,8 @@ def process_sitemap(site_url, max_urls):
     return res
 
 
-def write_report_output(domain_name, data_frame):
-    """Write the output of the results to file."""
-    dir_path = 'var/{}/'.format(domain_name)
-    if not os.path.exists(dir_path):
-        os.mkdir(dir_path)
-
-    # Output main results.
-    file_name = 'analysis_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-    full_path = '{}{}'.format(dir_path, file_name)
-
-    data_frame.to_csv(path_or_buf=full_path, index=False)
-    print('\nReport: {}'.format(full_path))
-
-    # Output resource references.
-    file_name = 'resource_references_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))
-    full_path = '{}{}'.format(dir_path, file_name)
-
-    with open(full_path, 'w') as outfile:
-        writer = DictWriter(outfile, fieldnames=url_mgmt.RESOURCE_REFERENCES_COLUMNS)
-        writer.writeheader()
-        writer.writerows(url_mgmt.processed_resource_references())
-
-    print('Report: {}'.format(full_path))
-
-    # Output external references.
-    file_name = 'external_references_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))
-    full_path = '{}{}'.format(dir_path, file_name)
-
-    with open(full_path, 'w') as outfile:
-        writer = DictWriter(outfile, fieldnames=url_mgmt.EXTERNAL_PAGES_COLUMNS)
-        writer.writeheader()
-        writer.writerows(url_mgmt.external_pages())
-
-    print('Report: {}\n'.format(full_path))
-
-
-def analysis_report(data_frame):
-    """Print a summary of the report to the console."""
-    print('\nSummary:')
-    print(data_frame.describe())
-    print('\n--------------------------------------')
-
-    total_grouping = data_frame.groupby('grouping', as_index=True)[['total']]
-    print('Max:')
-    print(total_grouping.max())
-    print('--------------------------------------')
-
-    print('Mean:')
-    print(total_grouping.mean())
-    print('\n--------------------------------------')
-
-    print('Category distribution:')
-    print(data_frame.stb.freq(['grouping']))
-
-
-def report_results(domain_name, results):
-    "Process the result data."
-    data_frame = pd.DataFrame(results, columns=COLUMNS)
-
-    analysis_report(data_frame)
-    write_report_output(domain_name, data_frame)
+def report_results(results):
+    """Process the result data."""
+    url_mgmt.analysis_report(COLUMNS_ANALYSIS, results)
+    url_mgmt.generate_report('analysis', COLUMNS_ANALYSIS, results)
+    url_mgmt.generate_internal_reports()

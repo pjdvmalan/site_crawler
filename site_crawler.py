@@ -38,7 +38,7 @@ def main():
             results.append(process_url(browser, page))
 
         if results:
-            report_results(domain_name, results)
+            report_results(results)
 
         else:
             logging.warning('No processed URLs to report on')
@@ -46,6 +46,7 @@ def main():
     except Exception as ex:
         logging.error('Exception: %s', ex)
         traceback.print_exc()
+
     finally:
         browser.quit()
 

@@ -1,15 +1,33 @@
-"""URL Management."""
+"""
+URL Management.
+"""
+import datetime
+import logging
+import os
 
+import pandas as pd
 import tldextract
+
+# Sidetable accessed through the new .stb accessor on your DataFrame.
+import sidetable
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
+pd.set_option('display.precision', 2)
+
 
 class UrlManagement:
     """Manage URL processing."""
 
     # Resource reference CSV output columns.
-    RESOURCE_REFERENCES_COLUMNS = ['url', 'type', 'cnt']
+    COLUMNS_RESOURCE_REFERENCES = ['url', 'type', 'cnt']
 
     # Resource reference CSV output columns.
-    EXTERNAL_PAGES_COLUMNS = ['url', 'cnt']
+    COLUMNS_EXTERNAL_PAGES = ['url', 'cnt']
+
+    # Basic URL list.
+    COLUMNS_BASIC = ['url']
+
 
     def __init__(self):
         # List of URLs processed.
@@ -29,6 +47,7 @@ class UrlManagement:
 
         # Domain name to collect from - everything else is ignored.
         self._domain_name = None
+
 
     @staticmethod
     def _prep_url(url):
@@ -159,7 +178,7 @@ class UrlManagement:
         return list(self._external_pages_list)
 
 
-    def unreachable_pages_list(self, url=None, status_code=None):
+    def unreachable_pages(self, url=None, status_code=None):
         """
         List of URLs that could not be reached.
 
@@ -189,3 +208,52 @@ class UrlManagement:
             return False
 
         return list(self._unreachable_pages_list)
+
+
+    @staticmethod
+    def analysis_report(columns, values):
+        """Print a summary of the report to the console."""
+
+        data_frame = pd.DataFrame(values, columns=columns)
+
+        print('\nSummary:')
+        print(data_frame.describe())
+        print('\n--------------------------------------')
+
+        total_grouping = data_frame.groupby('grouping', as_index=True)[['total']]
+        print('Max:')
+        print(total_grouping.max())
+        print('--------------------------------------')
+
+        print('Mean:')
+        print(total_grouping.mean())
+        print('\n--------------------------------------')
+
+        print('Category distribution:')
+        print(data_frame.stb.freq(['grouping']))
+
+
+    def generate_report(self, file_name, columns, values):
+        """Output URL lists to CSV."""
+        if values:
+            dir_path = 'var/{}/'.format(self._domain_name) if self._domain_name else 'var/'
+            if not os.path.exists(dir_path):
+                os.mkdir(dir_path)
+
+            file_name = '{}_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), file_name)
+            full_path = '{}{}'.format(dir_path, file_name)
+
+            data_frame = pd.DataFrame(values, columns=columns)
+            data_frame.to_csv(path_or_buf=full_path, index=False)
+
+        else:
+            logging.warning('Report: %s - nothing to report on.', file_name)
+
+
+    def generate_internal_reports(self):
+        """Write the output of the results to file."""
+        self.generate_report('external_uri', self.COLUMNS_EXTERNAL_PAGES, self.external_pages())
+        self.generate_report('resource_uri', self.COLUMNS_RESOURCE_REFERENCES, self.processed_resource_references())
+        self.generate_report('processed_uri', self.COLUMNS_BASIC, self.processed_pages())
+        self.generate_report('unreachable_uri', self.COLUMNS_BASIC, self.unreachable_pages())
+        self.generate_report('unprocessed_uri', self.COLUMNS_BASIC, self.unprocessed_pages())
