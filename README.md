@@ -78,6 +78,8 @@ pip install -r requirements-dev.txt
 
 - Set your parameters in the new file.
 
+- Obtain a [Google PageSpeed Insights API Key](https://developers.google.com/speed/docs/insights/v5/get-started).
+
 ## Usage
 
 Run commands inside the virtual environment.
@@ -90,7 +92,11 @@ To print help, run:
 ./crawl_site.py -h
 ```
 
+NOTE: There are PageSPeed Insights API Limits, which is accomodated for in the code.
+
 ## Reports
+
+Lighthouse metrics based on the following: [Performance Audits](https://web.dev/lighthouse-performance/).
 
 ### 1. Page Load Metrics
 
@@ -150,6 +156,7 @@ NOTES:
 - [Using the Resource Timing API](https://developer.mozilla.org/en-US/docs/Web/API/Resource_Timing_API/Using_the_Resource_Timing_API)
 - [PerformancePaintTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming)
 - [PerformanceNavigationTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming)
+- https://developers.google.com/speed/docs/insights/v5/get-started
 
 ## Contributing
 

@@ -12,3 +12,5 @@ TARGER_URL = None
 EXCLUDE_PATHS = []
 # Report groupings.
 DF_GROUP_BY = {}
+# Google PageSpeed Insights API key.
+GOOGLE_PS_API_KEY = None

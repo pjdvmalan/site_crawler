@@ -2,49 +2,53 @@
 """
 Site crawler application.
 """
+
 import traceback
 
+import tldextract
+from tqdm import tqdm
+
 from etc import config
-from lib import report_results, configure_browser, logging, process_arguments, process_url, process_sitemap
+from lib import report_results, conf_browser, logging, process_args, process_url, process_sitemap, url_mgmt
 
 
-def main(args):
+def main():
     """
     Command-line entrypoint to process a URL or sitemap and show a report if needed.
     """
-    browser = configure_browser()
-    results = None
+    args = process_args()
+    browser = conf_browser()
+    results = []
 
     try:
+        source_url_path = args.url if args.url else args.siteurl if args.siteurl else config.TARGER_URL
+        domain_name = tldextract.extract(source_url_path).domain
+        url_mgmt.set_domain_name(domain_name)
+
         if args.url:
-            results = [process_url(browser, args.url)]
+            url_mgmt.unprocessed_pages(args.url)
+
         else:
-            results = process_sitemap(
-                browser,
-                site_url=args.siteurl,
-                max_urls=args.max,
-                show_list=args.list,
-                skip_analysis=args.skip_analysis,
-                exclude_urls=config.EXCLUDE_PATHS,
-            )
+            url_mgmt.unprocessed_pages(process_sitemap(args.siteurl, args.max))
+
+        for page in tqdm(url_mgmt.unprocessed_pages(), desc='Processing URLs'):
+            results.append(process_url(browser, page))
+
+        for page in tqdm(url_mgmt.unprocessed_pages(), desc='Processing secondary URLs'):
+            results.append(process_url(browser, page))
+
+        if results:
+            report_results(domain_name, results)
+
+        else:
+            logging.warning('No processed URLs to report on')
+
     except Exception as ex:
         logging.error('Exception: %s', ex)
         traceback.print_exc()
     finally:
         browser.quit()
 
-    if args.report or args.url:
-        if not args.skip_analysis:
-            if results:
-                source_url_path = args.url if args.url else args.siteurl if args.siteurl else config.TARGER_URL
-                report_results(source_url_path.lower(), results)
-
-            else:
-                logging.warning('No processed URLs to report on')
-
-        else:
-            logging.warning('Argument -a / --skip_analysis used; nothing to report on.')
-
 
 if __name__ == '__main__':
-    main(process_arguments())
+    main()

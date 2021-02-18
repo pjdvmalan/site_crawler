@@ -15,3 +15,6 @@ sidetable==0.8.0
 
 # https://pypi.org/project/tldextract/3.1.0/
 tldextract==3.1.0
+
+# https://pypi.org/project/tqdm/
+tqdm==4.56.2

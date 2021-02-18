@@ -15,15 +15,18 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import sidetable
-import tldextract
 
 from etc import config
+from .url_management import UrlManagement
+from .google_insights import GoogleInsights
 
 # usp.tree logging cannot be disabled in the standard way.
 logging.disable(logging.INFO)
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 pd.set_option('display.precision', 2)
 
+google_insights = GoogleInsights()
+url_mgmt = UrlManagement()
 
 MILLISECONDS = 1000.0
 
@@ -36,9 +39,7 @@ WAIT_S = 20
 JS_PAGE_METRICS = """\
     return {
         pageTiming: window.performance.timing,
-        navigation: window.performance.getEntriesByType("navigation"),
-        resource: window.performance.getEntriesByType("resource"),
-        paint: window.performance.getEntriesByType("paint")
+        resource: window.performance.getEntriesByType("resource")
     }
 """
 
@@ -50,75 +51,27 @@ RESOURCE_IMAGES = ['.apng', '.avif', '.gif', '.jpg', '.jpeg', '.jfif', '.pjpeg',
                    '.bmp', '.ico', '.cur', '.tif', '.tiff']
 
 COLUMNS = [
-    'time', 'url', 'grouping', 'server', 'browser', 'usable', 'total', 'data_transfer', 'redirected', 'dom', 'fcp',
+    'performance', 'accessibility', 'best_practices', 'seo', 'first_contentful_paint', 'first_contentful_paint_score',
+    'speed_index', 'speed_index_score', 'largest_contentful_paint', 'largest_contentful_paint_score', 'interactive',
+    'interactive_score', 'total_blocking_time', 'total_blocking_time_score', 'cumulative_layout_shift',
+    'cumulative_layout_shift_score', 'third_party_wasted', 'third_party_wasted_size',
+    'time', 'url', 'grouping', 'server', 'browser', 'usable', 'total', 'data_transfer', 'redirected', 'dom',
     'img', 'img_sec', 'img_size', 'css', 'css_sec', 'css_size', 'script', 'script_sec', 'script_size', 'font',
     'font_sec', 'font_size', 'xhrt', 'xhrt_sec', 'xhrt_size'
 ]
 
-# List of URLs processed.
-PROCESSED_PAGES = []
 
-# List of URLs to be checked.
-UN_PROCESSED_PAGES = []
+def fmt(m_val):
+    """Format metric values based on type."""
+    if isinstance(m_val,float):
+        return float('{:.2f}'.format(m_val))
 
-# List of resources referenced.
-RESOURCE_REFERENCES = []
-
-# Resource reference CSV output columns.
-RESOURCE_REFERENCES_COLUMNS = ['url', 'type', 'cnt']
+    return m_val
 
 
-def processed_pages(url):
-    """Manage access to PROCESSED_PAGES global variable."""
-    if url:
-        page_url = url.lower().strip()
-        if page_url in PROCESSED_PAGES:
-            return True
-
-        PROCESSED_PAGES.append(page_url)
-        return False
-
-    return PROCESSED_PAGES
-
-
-def processed_resource_references(url, resource_type):
-    """
-    Manage access to PROCESSED_PAGES global variable.
-
-    Object structure:
-    {
-        'url': '',
-        'type': '',
-        'cnt': 0
-    }
-    """
-    if url and resource_type:
-        resource_url = url.lower().strip()
-        resource = [resource for resource in RESOURCE_REFERENCES if resource['url'] == resource_url]
-
-        if resource:
-            resource[0]['cnt'] = resource[0]['cnt'] + 1
-            return True
-
-        RESOURCE_REFERENCES.append(
-            {
-                'url': resource_url,
-                'type': resource_type,
-                'cnt': 1
-            }
-        )
-        return False
-
-    return RESOURCE_REFERENCES
-
-
-def process_arguments():
+def process_args():
     """Process arguments from the CLI."""
     parser = argparse.ArgumentParser('Process website URLs referenced in sitemap.xml')
-
-    parser.add_argument('-l', '--list', action='store_true', help='List URLs referenced in sitemap.xml.')
-    parser.add_argument('-a', '--skip_analysis', action='store_true', help='Do not analyse pages.')
-    parser.add_argument('-r', '--report', action='store_true', help='Report results.')
     parser.add_argument('-u', '--url', help='Process single URL.')
     parser.add_argument('-s', '--siteurl', help='Process specified website.')
     parser.add_argument('-m', '--max', type=int, default=0, help='Max number of URLs.')
@@ -126,7 +79,7 @@ def process_arguments():
     return parser.parse_args()
 
 
-def configure_browser():
+def conf_browser():
     """Configure the browser instance."""
     ff_options = FirefoxOptions()
     ff_options.headless = HEADLESS
@@ -155,10 +108,31 @@ def load(browser, url):
     return loaded_ok
 
 
-def process_page_data(page_metrics):
+def process_page_metrics(timing_metrics, insights_metrics):
     """Report on page statiscics."""
 
-    page_info = {
+    p_data = {
+        # Lighthouse performance.
+        'performance': 0,
+        'accessibility': 0,
+        'best_practices': 0,
+        'seo': 0,
+        'first_contentful_paint': 0,
+        'first_contentful_paint_score': 0,
+        'speed_index': 0,
+        'speed_index_score': 0,
+        'largest_contentful_paint': 0,
+        'largest_contentful_paint_score': 0,
+        'interactive': 0,
+        'interactive_score': 0,
+        'total_blocking_time': 0,
+        'total_blocking_time_score': 0,
+        'cumulative_layout_shift': 0,
+        'cumulative_layout_shift_score': 0,
+        'third_party_wasted': 0,
+        'third_party_wasted_size': 0,
+
+        # Browser Timing API.
         'server': 0,
         'browser': 0,
         'usable': 0,
@@ -166,8 +140,8 @@ def process_page_data(page_metrics):
         'data_transfer': 0,
         'redirected': 0,
         'dom': 0,
-        'fcp': 0,
 
+        # Artefacts.
         'img': 0,
         'img_sec': 0,
         'img_size': 0,
@@ -197,64 +171,95 @@ def process_page_data(page_metrics):
         'other_size': 0,
     }
 
-    # Window.performance: https://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface
-    page_timing = page_metrics['pageTiming']
+    # General
+    if insights_metrics:
+        i_categories = insights_metrics["lighthouseResult"]["categories"]
+        p_data['performance'] = fmt(i_categories["performance"]["score"] * 100)
+        p_data['accessibility'] = fmt(i_categories["accessibility"]["score"] * 100)
+        p_data['best_practices'] = fmt(i_categories["best-practices"]["score"] * 100)
+        p_data['seo'] = fmt(i_categories["seo"]["score"] * 100)
 
-    # https://mkaz.blog/code/use-python-selenium-to-automate-web-timing/
-    page_info['server'] = (page_timing['responseStart'] - page_timing['navigationStart']) / MILLISECONDS
-    page_info['browser'] = (page_timing['domComplete'] - page_timing['responseStart']) / MILLISECONDS
-    page_info['usable'] = (page_timing['domInteractive'] - page_timing['navigationStart']) / MILLISECONDS
-    page_info['total'] = (page_timing['domComplete'] - page_timing['navigationStart']) / MILLISECONDS
-    page_info['data_transfer'] = (page_timing['responseEnd'] - page_timing['responseStart']) / MILLISECONDS
-    page_info['redirected'] = (page_timing['redirectEnd'] - page_timing['redirectStart']) / MILLISECONDS
-    page_info['dom'] = (page_timing['domComplete'] - page_timing['domLoading']) / MILLISECONDS
+        i_audits = insights_metrics["lighthouseResult"]["audits"]
+        # Performance
+        # firstContentfulPaint : First Contentful Paint (FCP) marks the time at which the first text or image is
+        # painted.
+        p_data['first_contentful_paint'] = fmt(i_audits["first-contentful-paint"]["numericValue"] / MILLISECONDS)
+        p_data['first_contentful_paint_score'] = fmt(i_audits["first-contentful-paint"]["score"]*100)
 
-    # PerformanceEntry Types: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType
-    # Using the Resource Timing API:
-    # https://developer.mozilla.org/en-US/docs/Web/API/Resource_Timing_API/Using_the_Resource_Timing_API
+        # speedIndex : Speed Index shows how quickly the contents of a page are visibly populated.
+        p_data['speed_index'] = fmt(i_audits["speed-index"]["numericValue"] / MILLISECONDS)
+        p_data['speed_index_score'] = fmt(i_audits["speed-index"]["score"]*100)
 
-    # PerformanceNavigationTiming: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
-    # NOTE: page_timing will be depricated and will hve to use the navigation object.
-    # navigation = page_metrics['navigation']
+        # firstMeaningfulPaint : First Meaningful Paint measures when the primary content of a page is visible.
+        p_data['largest_contentful_paint'] = fmt(i_audits["largest-contentful-paint"]["numericValue"] / MILLISECONDS)
+        p_data['largest_contentful_paint_score'] = fmt(i_audits["largest-contentful-paint"]["score"]*100)
 
-    # PerformanceResourceTiming: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
-    resources = page_metrics['resource']
-    for resource in resources:
-        i_type = resource['initiatorType'].lower()
-        if i_type not in INITIATORTYPES:
-            if i_type == 'xmlhttprequest':
-                i_type = 'xhrt'
+        # interactive : Time to interactive is the amount of time it takes for the page to become fully interactive.
+        p_data['interactive'] = fmt(i_audits["interactive"]["numericValue"] / MILLISECONDS)
+        p_data['interactive_score'] = fmt(i_audits["interactive"]["score"]*100)
 
-            elif resource['name'].endswith(tuple(RESOURCE_FONTS)):
-                i_type = 'font'
+        # totalBlockingTime : Sum of all time periods between FCP and Time to Interactive, when task length exceeded
+        # 50ms, expressed in milliseconds.
+        p_data['total_blocking_time'] = fmt(i_audits["total-blocking-time"]["numericValue"] / MILLISECONDS)
+        p_data['total_blocking_time_score'] = fmt(i_audits["total-blocking-time"]["score"]*100)
 
-            elif resource['name'].endswith(tuple(RESOURCE_IMAGES)):
-                i_type = 'img'
+        # cumulativeLayoutShift : new in LightHouse 6, "Cumulative Layout Shift (CLS)" measures the visual stability
+        # and quantifies how much a page’s content visually shifts around.
+        # Note: Already normalised to seconds.
+        p_data['cumulative_layout_shift'] = fmt(i_audits["cumulative-layout-shift"]["numericValue"])
+        p_data['cumulative_layout_shift_score'] = fmt(i_audits["cumulative-layout-shift"]["score"]*100)
 
-            elif resource['name'].endswith('.css'):
-                i_type = 'css'
+        # Third party blocking calls.
+        third_party = i_audits["third-party-summary"]["details"]["summary"]
+        p_data['third_party_wasted'] = fmt(third_party["wastedMs"] / MILLISECONDS)
+        p_data['third_party_wasted_size'] = fmt(third_party["wastedBytes"] / BYTE_TO_KILOBYTE)
 
-            elif resource['name'].endswith('.js'):
-                i_type = 'script'
+    # Page Timing Metrics
+    if timing_metrics:
+        page_timing = timing_metrics['pageTiming']
 
-            else:
-                i_type = 'other'
+        p_data['server'] = fmt((page_timing['responseStart'] - page_timing['navigationStart']) / MILLISECONDS)
+        p_data['browser'] = fmt((page_timing['domComplete'] - page_timing['responseStart']) / MILLISECONDS)
+        p_data['usable'] = fmt((page_timing['domInteractive'] - page_timing['navigationStart']) / MILLISECONDS)
+        p_data['total'] = fmt((page_timing['domComplete'] - page_timing['navigationStart']) / MILLISECONDS)
+        p_data['data_transfer'] = fmt((page_timing['responseEnd'] - page_timing['responseStart']) / MILLISECONDS)
+        p_data['redirected'] = fmt((page_timing['redirectEnd'] - page_timing['redirectStart']) / MILLISECONDS)
+        p_data['dom'] = fmt((page_timing['domComplete'] - page_timing['domLoading']) / MILLISECONDS)
 
-        page_info[i_type] = page_info[i_type] + 1
-        page_info[i_type + '_sec'] = page_info[i_type + '_sec'] + (resource['duration'] / MILLISECONDS)
-        page_info[i_type + '_size'] = page_info[i_type + '_size'] + (resource['encodedBodySize'] / BYTE_TO_KILOBYTE)
+        # PerformanceEntry Types: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType
+        # Using the Resource Timing API:
+        # https://developer.mozilla.org/en-US/docs/Web/API/Resource_Timing_API/Using_the_Resource_Timing_API
 
-        processed_resource_references(resource['name'], i_type)
+        # PerformanceResourceTiming: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
+        resources = timing_metrics['resource']
+        for resource in resources:
+            i_type = resource['initiatorType'].lower()
+            if i_type not in INITIATORTYPES:
+                if i_type == 'xmlhttprequest':
+                    i_type = 'xhrt'
 
-    # PerformancePaintTiming: https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
-    paint = page_metrics['paint']
-    if len(paint) == 1 and paint[0]['name'] == 'first-contentful-paint':
-        page_info['fcp'] = (paint[0]['startTime']) / MILLISECONDS
+                elif resource['name'].endswith(tuple(RESOURCE_FONTS)):
+                    i_type = 'font'
 
-    else:
-        logging.error('PerformancePaintTiming: Number of results not expected.')
+                elif resource['name'].endswith(tuple(RESOURCE_IMAGES)):
+                    i_type = 'img'
 
-    return page_info
+                elif resource['name'].endswith('.css'):
+                    i_type = 'css'
+
+                elif resource['name'].endswith('.js'):
+                    i_type = 'script'
+
+                else:
+                    i_type = 'other'
+
+            p_data[i_type] = p_data[i_type] + 1
+            p_data[i_type + '_sec'] = fmt(p_data[i_type + '_sec'] + (resource['duration'] / MILLISECONDS))
+            p_data[i_type + '_size'] = fmt(p_data[i_type + '_size'] + (resource['encodedBodySize'] / BYTE_TO_KILOBYTE))
+
+            url_mgmt.processed_resource_references(resource['name'], i_type)
+
+    return p_data
 
 
 def process_url(browser, url):
@@ -264,6 +269,7 @@ def process_url(browser, url):
     request = requests.get(url)
 
     if request.status_code != 200:
+        url_mgmt.unreachable_pages_list(url, request.status_code)
         logging.error('Error loading: %s - status: %s', url, request.status_code)
 
         return {}
@@ -280,28 +286,34 @@ def process_url(browser, url):
 
     url_path = urlparse(url).path
 
-    page_metrics = browser.execute_script(JS_PAGE_METRICS)
+    timing_api_metrics = browser.execute_script(JS_PAGE_METRICS)
+    google_insights_metrics = google_insights.page_performance(url)
+
+    url_mgmt.processed_pages(url)
+
+    links_referenced = browser.find_elements_by_tag_name('a')
+    links = [link.get_attribute('href') for link in links_referenced if link.get_attribute('href')]
+    url_mgmt.unprocessed_pages(links)
 
     return {
         'time': format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
         'url': url_path,
         'grouping': grouping,
-        **process_page_data(page_metrics)
+        **process_page_metrics(timing_api_metrics, google_insights_metrics)
     }
 
 
-def process_sitemap(browser, site_url, max_urls, show_list, skip_analysis, exclude_urls):
+def process_sitemap(site_url, max_urls):
     """Iterate through and process all pages in a website's sitemap."""
-    results = []
-
     counter = 0
 
     target_url = site_url if site_url else config.TARGER_URL
     site_map = site_map_tree(target_url)
+    res = []
 
     for page in site_map.all_pages():
         page_url = page.url.lower()
-        if page_url in processed_pages(None) or page_url in exclude_urls:
+        if page_url in url_mgmt.processed_pages() or page_url in config.EXCLUDE_PATHS:
             continue
 
         # max_urls apply only to non duplicate/excluded URLs.
@@ -310,19 +322,13 @@ def process_sitemap(browser, site_url, max_urls, show_list, skip_analysis, exclu
             if counter > max_urls:
                 break
 
-        processed_pages(page_url)
+        res.append(page_url)
 
-        if show_list:
-            print(page_url)
-        if not skip_analysis:
-            results.append(process_url(browser, page_url))
-
-    return results
+    return res
 
 
-def write_report_output(source_url_path, data_frame):
+def write_report_output(domain_name, data_frame):
     """Write the output of the results to file."""
-    domain_name = tldextract.extract(source_url_path).domain
     dir_path = 'var/{}/'.format(domain_name)
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
@@ -339,9 +345,20 @@ def write_report_output(source_url_path, data_frame):
     full_path = '{}{}'.format(dir_path, file_name)
 
     with open(full_path, 'w') as outfile:
-        writer = DictWriter(outfile, fieldnames=RESOURCE_REFERENCES_COLUMNS)
+        writer = DictWriter(outfile, fieldnames=url_mgmt.RESOURCE_REFERENCES_COLUMNS)
         writer.writeheader()
-        writer.writerows(processed_resource_references(None, None))
+        writer.writerows(url_mgmt.processed_resource_references())
+
+    print('Report: {}'.format(full_path))
+
+    # Output external references.
+    file_name = 'external_references_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H_%M_%S'))
+    full_path = '{}{}'.format(dir_path, file_name)
+
+    with open(full_path, 'w') as outfile:
+        writer = DictWriter(outfile, fieldnames=url_mgmt.EXTERNAL_PAGES_COLUMNS)
+        writer.writeheader()
+        writer.writerows(url_mgmt.external_pages())
 
     print('Report: {}\n'.format(full_path))
 
@@ -365,9 +382,9 @@ def analysis_report(data_frame):
     print(data_frame.stb.freq(['grouping']))
 
 
-def report_results(source_url_path, results):
+def report_results(domain_name, results):
     "Process the result data."
     data_frame = pd.DataFrame(results, columns=COLUMNS)
 
     analysis_report(data_frame)
-    write_report_output(source_url_path, data_frame)
+    write_report_output(domain_name, data_frame)

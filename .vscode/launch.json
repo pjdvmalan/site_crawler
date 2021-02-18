@@ -8,9 +8,8 @@
             "program": "${workspaceFolder}/site_crawler.py",
             "console": "integratedTerminal",
             "args": [
-                "-r",
                 "-m",
-                "2"
+                "3"
             ]
         }
     ]
