@@ -92,7 +92,7 @@ To print help, run:
 ./crawl_site.py -h
 ```
 
-NOTE: There are PageSPeed Insights API Limits, which is accomodated for in the code.
+NOTE: There are PageSpeed Insights API Limits, which is accomodated for in the code.
 
 ## Reports
 
