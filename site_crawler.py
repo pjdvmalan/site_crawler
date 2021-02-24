@@ -31,11 +31,25 @@ def main():
         else:
             url_mgmt.unprocessed_pages(process_sitemap(args.siteurl, args.max))
 
-        for page in tqdm(url_mgmt.unprocessed_pages(), desc='Processing URLs'):
-            results.append(process_url(browser, page))
+        url_set_cnt = 0
+        proc_cnt = 0
+        while url_mgmt.unprocessed_pages(clone=False):
+            url_set_cnt = url_set_cnt + 1
+            if args.max:
+                if proc_cnt >= args.max:
+                    break
 
-        for page in tqdm(url_mgmt.unprocessed_pages(), desc='Processing secondary URLs'):
-            results.append(process_url(browser, page))
+            for page in tqdm(url_mgmt.unprocessed_pages(), desc='Processing URL set: {}'.format(url_set_cnt)):
+                if args.max:
+                    proc_cnt += 1
+                    if proc_cnt > args.max:
+                        break
+                results.append(process_url(browser, page, args.follow))
+
+            else:
+                continue
+
+            break
 
         if results:
             report_results(results)

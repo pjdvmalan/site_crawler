@@ -54,12 +54,12 @@ class UrlManagement:
         """Normalise URL."""
 
         if url:
+            url = url.partition('?')[0]
+            url = url.partition('#')[0]
+
             url = url.lower().strip()
             if url.endswith('/'):
                 url = url[:-1]
-
-            url = url.partition('?')[0]
-            url = url.partition('#')[0]
 
         return url
 
@@ -69,7 +69,7 @@ class UrlManagement:
         self._domain_name = self._prep_url(domain_name)
 
 
-    def unprocessed_pages(self, urls=None, action='add'):
+    def unprocessed_pages(self, urls=None, action='add', clone=True):
         """Manage accessign and processing of URLs for pages to be processed."""
         if urls:
             # Convert a string to a list.
@@ -96,7 +96,10 @@ class UrlManagement:
 
             return False
 
-        return list(self._un_processed_pages_list)
+        if clone:
+            return list(self._un_processed_pages_list)
+
+        return self._un_processed_pages_list
 
 
     def processed_pages(self, url=None):
@@ -116,7 +119,7 @@ class UrlManagement:
         return list(self._processed_pages_list)
 
 
-    def processed_resource_references(self, url=None, resource_type=None):
+    def processed_resource_references(self, source_url=None, url=None, resource_type=None):
         """
         Manage access to 'resource_references_list' variable.
 
@@ -125,6 +128,7 @@ class UrlManagement:
             'url': '',
             'type': '',
             'cnt': 0
+            'sample_src_url': ''
         }
         """
         if url and resource_type:
@@ -139,7 +143,8 @@ class UrlManagement:
                 {
                     'url': resource_url,
                     'type': resource_type,
-                    'cnt': 1
+                    'cnt': 1,
+                    'sample_src_url': source_url
                 }
             )
 
@@ -231,7 +236,7 @@ class UrlManagement:
 
         print('Category distribution:')
         print(data_frame.stb.freq(['grouping']))
-
+        print('')
 
     def generate_report(self, file_name, columns, values):
         """Output URL lists to CSV."""
@@ -240,7 +245,7 @@ class UrlManagement:
             if not os.path.exists(dir_path):
                 os.mkdir(dir_path)
 
-            file_name = '{}_report_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), file_name)
+            file_name = '{}_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), file_name)
             full_path = '{}{}'.format(dir_path, file_name)
 
             data_frame = pd.DataFrame(values, columns=columns)

@@ -69,7 +69,8 @@ def process_args():
     parser = argparse.ArgumentParser('Process website URLs referenced in sitemap.xml')
     parser.add_argument('-u', '--url', help='Process single URL.')
     parser.add_argument('-s', '--siteurl', help='Process specified website.')
-    parser.add_argument('-m', '--max', type=int, default=0, help='Max number of URLs.')
+    parser.add_argument('-m', '--max', type=int, default=0, help='Max number of URLs to process.')
+    parser.add_argument('-f', '--follow', action='store_true', help='Follow internal URLs.')
 
     return parser.parse_args()
 
@@ -103,7 +104,7 @@ def load(browser, url):
     return loaded_ok
 
 
-def process_page_metrics(timing_metrics, insights_metrics):
+def process_page_metrics(source_url, timing_metrics, insights_metrics):
     """Report on page statiscics."""
 
     p_data = {
@@ -252,12 +253,12 @@ def process_page_metrics(timing_metrics, insights_metrics):
             p_data[i_type + '_sec'] = fmt(p_data[i_type + '_sec'] + (resource['duration'] / MILLISECONDS))
             p_data[i_type + '_size'] = fmt(p_data[i_type + '_size'] + (resource['encodedBodySize'] / BYTE_TO_KILOBYTE))
 
-            url_mgmt.processed_resource_references(resource['name'], i_type)
+            url_mgmt.processed_resource_references(source_url, resource['name'], i_type)
 
     return p_data
 
 
-def process_url(browser, url):
+def process_url(browser, url, follow_links):
     """Process a single URL."""
     logging.info('Processing: %s', url)
 
@@ -286,15 +287,16 @@ def process_url(browser, url):
 
     url_mgmt.processed_pages(url)
 
-    links_referenced = browser.find_elements_by_tag_name('a')
-    links = [link.get_attribute('href') for link in links_referenced if link.get_attribute('href')]
-    url_mgmt.unprocessed_pages(links)
+    if follow_links:
+        links_referenced = browser.find_elements_by_tag_name('a')
+        links = [link.get_attribute('href') for link in links_referenced if link.get_attribute('href')]
+        url_mgmt.unprocessed_pages(links)
 
     return {
         'time': format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
         'url': url_path,
         'grouping': grouping,
-        **process_page_metrics(timing_api_metrics, google_insights_metrics)
+        **process_page_metrics(url_path, timing_api_metrics, google_insights_metrics,)
     }
 
 
