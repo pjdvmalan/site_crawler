@@ -70,7 +70,7 @@ class UrlManagement:
 
 
     def unprocessed_pages(self, urls=None, action='add', clone=True):
-        """Manage accessign and processing of URLs for pages to be processed."""
+        """Manage accessing and processing of URLs for pages to be processed."""
         if urls:
             # Convert a string to a list.
             if isinstance(urls, str):
