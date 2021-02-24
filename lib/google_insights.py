@@ -20,7 +20,6 @@ GOOGLE_PS_API_WAIT_S = 5
 class GoogleInsights:
     """Manage requests to Google Page Speed Insights."""
 
-    last_processed = None
 
     def __init__(self):
         self.last_processed = int(time.time())
