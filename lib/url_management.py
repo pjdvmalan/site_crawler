@@ -125,7 +125,7 @@ class UrlManagement:
 
         Object structure:
         {
-            'url': '',
+            'url': str,
             'type': '',
             'cnt': 0
             'sample_src_url': ''
