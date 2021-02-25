@@ -46,7 +46,7 @@ class UrlManagement:
         self._external_pages_list = []
 
         # Domain name to collect from - everything else is ignored.
-        self._domain_name = None
+        self._domain_name = ''
 
 
     @staticmethod
@@ -88,13 +88,13 @@ class UrlManagement:
                     if page_url in self._un_processed_pages_list:
                         if action == 'delete':
                             self._un_processed_pages_list.remove(page_url)
-                            return True
+                            return
                     else:
                         self._un_processed_pages_list.append(page_url)
                 else:
                     self.external_pages(page_url)
 
-            return False
+            return
 
         if clone:
             return list(self._un_processed_pages_list)
@@ -109,12 +109,10 @@ class UrlManagement:
 
             self.unprocessed_pages(page_url, 'delete')
 
-            if page_url in self._processed_pages_list:
-                return True
+            if page_url not in self._processed_pages_list:
+                self._processed_pages_list.append(page_url)
 
-            self._processed_pages_list.append(page_url)
-
-            return False
+            return
 
         return list(self._processed_pages_list)
 
@@ -137,7 +135,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return True
+                return
 
             self._resource_references_list.append(
                 {
@@ -148,7 +146,7 @@ class UrlManagement:
                 }
             )
 
-            return False
+            return
 
         return list(self._resource_references_list)
 
@@ -169,7 +167,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return True
+                return
 
             self._external_pages_list.append(
                 {
@@ -178,7 +176,7 @@ class UrlManagement:
                 }
             )
 
-            return False
+            return
 
         return list(self._external_pages_list)
 
@@ -200,7 +198,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return True
+                return
 
             self._unreachable_pages_list.append(
                 {
@@ -210,7 +208,7 @@ class UrlManagement:
                 }
             )
 
-            return False
+            return
 
         return list(self._unreachable_pages_list)
 
