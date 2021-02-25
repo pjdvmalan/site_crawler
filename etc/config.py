@@ -1,13 +1,20 @@
 """
 Config module.
 """
-import os
+from os import path
+
+# Configure the following in config_local.py
+TARGER_URL = None
+EXCLUDE_PATHS = []
+DF_GROUP_BY = {}
+GOOGLE_PS_API_KEY = None
 
 # Import, parse and validate user's local config in this config file.
 try:
-    from .config_local import *
+    # pylint: disable=unused-import
+    from .config_local import TARGER_URL, EXCLUDE_PATHS, DF_GROUP_BY, GOOGLE_PS_API_KEY
 except ImportError:
-    f_path = os.path.join(os.path.dirname(__file__), 'configlocal.py')
+    f_path = path.join(path.dirname(__file__), 'configlocal.py')
     raise ImportError(f"You need to create a local config file at: {f_path}.")
 
-assert target_url, "Please set the 'target_url' config parameter in 'config_local.py'"
+assert TARGER_URL, "Please set the 'target_url' config parameter in 'config_local.py'"
