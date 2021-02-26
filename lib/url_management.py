@@ -239,11 +239,15 @@ class UrlManagement:
     def generate_report(self, file_name, columns, values):
         """Output URL lists to CSV."""
         if values:
-            dir_path = 'var/{}/'.format(self._domain_name) if self._domain_name else 'var/'
-            if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
+            if self._domain_name:
+                dir_path = 'var/{}/{}/'.format(self._domain_name, datetime.datetime.now().strftime('%Y-%m-%d'))
+            else:
+                dir_path = 'var/{}/'.format(datetime.datetime.now().strftime('%Y-%m-%d'))
 
-            file_name = '{}_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), file_name)
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+
+            file_name = '{}_{}.csv'.format(file_name, datetime.datetime.now().strftime('%H-%M-%S'))
             full_path = '{}{}'.format(dir_path, file_name)
 
             data_frame = pd.DataFrame(values, columns=columns)
