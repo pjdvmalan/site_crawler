@@ -31,25 +31,23 @@ def main():
         else:
             url_mgmt.unprocessed_pages(process_sitemap(args.siteurl, args.max))
 
-        url_set_cnt = 0
         proc_cnt = 0
-        while url_mgmt.unprocessed_pages(clone=False):
-            url_set_cnt = url_set_cnt + 1
-            if args.max:
-                if proc_cnt >= args.max:
-                    break
-
-            for page in tqdm(url_mgmt.unprocessed_pages(), desc='Processing URL set: {}'.format(url_set_cnt)):
+        while True:
+            if url_mgmt.unprocessed_pages(clone=False):
                 if args.max:
-                    proc_cnt += 1
-                    if proc_cnt > args.max:
+                    if proc_cnt == args.max:
                         break
+
+                proc_cnt += 1
+                total = len(url_mgmt.unprocessed_pages(clone=False)) + proc_cnt
+
+                page = url_mgmt.unprocessed_pages(clone=False)[0]
                 results.append(process_url(browser, page, args.follow))
 
-            else:
-                continue
+                print('Processed: {}/{}'.format(proc_cnt, total))
 
-            break
+            else:
+                break
 
         if results:
             report_results(results)
