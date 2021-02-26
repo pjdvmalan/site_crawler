@@ -50,7 +50,7 @@ def main():
             report_results(results)
 
         else:
-            logging.warning('No processed URLs to report on')
+            logging.warning('No processed URLs to report on.')
 
     except Exception as ex:
         logging.error('Exception: %s', ex)
