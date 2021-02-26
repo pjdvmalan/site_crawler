@@ -4,10 +4,7 @@ Site crawler application.
 """
 
 import traceback
-
 import tldextract
-from tqdm import tqdm
-
 from etc import config
 from lib import report_results, conf_browser, logging, process_args, process_url, process_sitemap, url_mgmt
 
@@ -42,7 +39,7 @@ def main():
                 total = len(url_mgmt.unprocessed_pages(clone=False)) + proc_cnt
 
                 page = url_mgmt.unprocessed_pages(clone=False)[0]
-                results.append(process_url(browser, page, args.follow))
+                results.append(process_url(browser, page, args.follow, args.debug))
 
                 print('Processed: {}/{}'.format(proc_cnt, total))
 

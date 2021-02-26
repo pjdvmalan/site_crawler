@@ -71,6 +71,7 @@ def process_args():
     parser.add_argument('-s', '--siteurl', help='Process specified website.')
     parser.add_argument('-m', '--max', type=int, default=0, help='Max number of URLs to process.')
     parser.add_argument('-f', '--follow', action='store_true', help='Follow internal URLs.')
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output.')
 
     return parser.parse_args()
 
@@ -258,7 +259,7 @@ def process_page_metrics(source_url, timing_metrics, insights_metrics):
     return p_data
 
 
-def process_url(browser, url, follow_links):
+def process_url(browser, url, follow_links, debug=False):
     """Process a single URL."""
     logging.info('Processing: %s', url)
 
@@ -283,7 +284,7 @@ def process_url(browser, url, follow_links):
     url_path = urlparse(url).path
 
     timing_api_metrics = browser.execute_script(JS_PAGE_METRICS)
-    google_insights_metrics = google_insights.page_performance(url)
+    google_insights_metrics = google_insights.page_performance(url, debug)
 
     url_mgmt.processed_pages(url)
 

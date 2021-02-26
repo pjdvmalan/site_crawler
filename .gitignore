@@ -4,6 +4,7 @@ config_local.py
 
 *.csv
 *.log
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

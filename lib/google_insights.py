@@ -1,10 +1,14 @@
 """
 Class to manage Google PageSpeed Insights.
 """
+import datetime
 import json
 import logging
+import os
 import time
+from urllib.parse import urlparse
 import requests
+import tldextract
 
 from etc import config
 
@@ -24,7 +28,22 @@ class GoogleInsights:
     def __init__(self):
         self.last_processed = int(time.time())
 
-    def page_performance(self, url):
+
+    @staticmethod
+    def _dump_json(url, res):
+        """Write JSON object to file"""
+        domain = tldextract.extract(url).domain
+        dir_path = 'var/{}/debug/{}/'.format(domain, datetime.datetime.now().strftime('%Y-%m-%d'))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+        url_path = urlparse(url).path
+        file_name = '{}{}_{}_insights.json'.format(dir_path, url_path[1:], datetime.datetime.now().strftime('%H-%M'))
+        file = open(file_name, "w")
+        json.dump(res, file, indent=4)
+
+
+    def page_performance(self, url, debug=False):
         """Call Google Page Speed Insights API"""
         # https://developers.google.com/speed/docs/insights/v5/reference/pagespeedapi/runpagespeed
 
@@ -45,6 +64,9 @@ class GoogleInsights:
         res = requests.get(GOOGLE_PS_API_URL, params = q_params)
         if res.status_code==200:
             res = json.loads(res.text)
+
+            if debug:
+                self._dump_json(url, res)
 
         elif res.status_code==429:
             logging.error('Google Insights API: Call limit reached.')

@@ -135,7 +135,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return
+                return []
 
             self._resource_references_list.append(
                 {
@@ -146,7 +146,7 @@ class UrlManagement:
                 }
             )
 
-            return
+            return []
 
         return list(self._resource_references_list)
 
@@ -167,7 +167,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return
+                return []
 
             self._external_pages_list.append(
                 {
@@ -176,7 +176,7 @@ class UrlManagement:
                 }
             )
 
-            return
+            return []
 
         return list(self._external_pages_list)
 
@@ -198,7 +198,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return
+                return []
 
             self._unreachable_pages_list.append(
                 {
@@ -208,7 +208,7 @@ class UrlManagement:
                 }
             )
 
-            return
+            return []
 
         return list(self._unreachable_pages_list)
 
