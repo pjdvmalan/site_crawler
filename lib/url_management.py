@@ -236,6 +236,7 @@ class UrlManagement:
         print(data_frame.stb.freq(['grouping']))
         print('')
 
+
     def generate_report(self, file_name, columns, values):
         """Output URL lists to CSV."""
         if values:
