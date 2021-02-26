@@ -88,13 +88,13 @@ class UrlManagement:
                     if page_url in self._un_processed_pages_list:
                         if action == 'delete':
                             self._un_processed_pages_list.remove(page_url)
-                            return
+                            return []
                     else:
                         self._un_processed_pages_list.append(page_url)
                 else:
                     self.external_pages(page_url)
 
-            return
+            return []
 
         if clone:
             return list(self._un_processed_pages_list)
@@ -112,7 +112,7 @@ class UrlManagement:
             if page_url not in self._processed_pages_list:
                 self._processed_pages_list.append(page_url)
 
-            return
+            return []
 
         return list(self._processed_pages_list)
 
