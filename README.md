@@ -186,3 +186,20 @@ And last but not least: Always write your commit messages in the present tense. 
 ## License
 
 Released under [MIT](/LICENSE) by [@pjdvmalan](https://github.com/pjdvmalan).
+
+
+Add type checking: https://docs.python.org/3/library/typing.html
+
+Column for primary and secondary runs
+Run secondary in a for loop
+Insights API: Could not process request
+
+https://www.debugbear.com/blog/why-is-my-lighthouse-score-different-from-pagespeed-insights
+https://pagespeedplus.com/blog/pagespeed-insights-vs-lighthouse
+https://stackoverflow.com/questions/60153823/why-google-speed-insights-google-lighthouse-web-dev-showing-different-audit
+https://medium.com/@OPTASY.com/google-pagespeed-vs-lighthouse-how-are-they-different-and-which-tool-should-you-use-3f03270c674
+
+Logging at correct level
+
+>>>> Add parent URL
+url_mgmt.processed_resource_references(resource['name'], i_type)
