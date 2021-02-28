@@ -9,12 +9,19 @@
 
 ## Features
 
-- List all URLs referenced in a site's `sitemap.xml` file.
-- Report on page _resource_ and _performance_ metrics across a site, or single URL.
+This tool aims to answer the following questions:
+
+1. What is the performance of my website?
+
+2. What external websites am I linking too?
+
+3. What resources are being used, e.g. CSS, JS, images, fonts, etc.
+
+4. Are there any dead links being used in my site?
 
 ## Installation
 
-### Clone
+### Clone the repository
 
 ```sh
 git clone git@github.com:pjdvmalan/site_crawler.git
@@ -76,7 +83,7 @@ pip install -r requirements-dev.txt
     cp etc/config_local_template.py etc/config_local.py
     ```
 
-- Set your parameters in the new file.
+- Set parameters in the new file.
 
 - Obtain a [Google PageSpeed Insights API Key](https://developers.google.com/speed/docs/insights/v5/get-started).
 
@@ -103,7 +110,25 @@ Lighthouse metrics based on the following: [Performance Audits](https://web.dev/
 | Metric | Description |
 |--------|-------------|
 |time|Timestamp when measurement was taken.|
-|url|URL being analysed.|
+|url|URL being analysed.||
+|performance||
+|accessibility||
+|best_practices||
+|seo||
+|first_contentful_paint||
+|first_contentful_paint_score||
+|speed_index||
+|speed_index_score||
+|largest_contentful_paint| The render time of the largest image or text block visible within the viewport.|
+|largest_contentful_paint_score||
+|interactive||
+|interactive_score||
+|total_blocking_time||
+|total_blocking_time_score||
+|cumulative_layout_shift||
+|cumulative_layout_shift_score||
+|third_party_wasted||
+|third_party_wasted_size||
 |grouping|The grouping assigned to thie URL.|
 |server|Server responese time.|
 |browser|Browser processing time.|
@@ -133,7 +158,7 @@ NOTES:
 
 - Time in seconds.
 - Size in kilobytes.
-- Location: `/var/{website_domain}/analysis_report_{timestamp}.csv`
+- Location: `/var/{website_domain}/date/analysis_report_{timestamp}.csv`
 
 ### 2. Resource References
 
@@ -149,14 +174,18 @@ NOTES:
 
 ## Resources
 
-- [Window.performance](https://www.w3.org/TR/navigation-timing/#sec-navigation-timing-interface)
-- [Navigation Timing](https://www.w3.org/TR/navigation-timing)
-- [PerformanceEntry Types](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType)
-- [PerformanceResourceTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming)
-- [Using the Resource Timing API](https://developer.mozilla.org/en-US/docs/Web/API/Resource_Timing_API/Using_the_Resource_Timing_API)
-- [PerformancePaintTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming)
-- [PerformanceNavigationTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming)
-- https://developers.google.com/speed/docs/insights/v5/get-started
+- Web Vitals
+  - [What is web vitals?](https://web.dev/vitals/)
+  - [Overview of tools to measure Core Web Vitals.](https://web.dev/vitals-tools/)
+  - [Get Started with the PageSpeed Insights API.](https://developers.google.com/speed/docs/insights/v5/get-started)
+  - [Google PageSpeed Insights API](https://developers.google.com/speed/docs/insights/v5/reference/pagespeedapi/runpagespeed).
+
+- Windows Navigation Timing
+  - [Navigation Timing](https://www.w3.org/TR/navigation-timing)
+  - [PerformanceEntry Types](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry/entryType)
+  - [PerformanceResourceTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming)
+  - [Using the Resource Timing API](https://developer.mozilla.org/en-US/docs/Web/API/Resource_Timing_API/Using_the_Resource_Timing_API)
+  - [PerformanceNavigationTiming](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming)
 
 ## Contributing
 
@@ -165,41 +194,11 @@ Contributions welcome! Contributing to open source projects is a great way to le
 - Social coding on GitHub.
 - Get involved in technologies new to you.
 
-### How to make a clean pull request
-
-- Create a personal fork of this project on GitHub.
-- Clone the fork on your local machine. Your remote repo on GitHub is called `origin`.
-- Add the original repository as a remote called `upstream`.
-- If you created your fork a while ago be sure to pull upstream changes into your local repository.
-- Create a new branch to work on. Branch from `main`.
-- Implement your new feature, or fix a bug. Remember to comment your code.
-- Follow the code style of the project, including indentation.
-- Add or change the documentation as needed.
-- Squash your commits into a single commit with git's [interactive rebase](https://help.github.com/articles/interactive-rebase). Create a new branch if necessary.
-- Push your branch to your fork on GitHub, the remote `origin`.
-- From your fork open a pull request in the correct branch. Target the project's `main` branch.
-- If the PR requires changes, push them to your branch. The PR will be updated automatically.
-- Once the pull request is approved and merged you can pull the changes from `upstream` to your local repo and delete any redundant local branches.
-
-And last but not least: Always write your commit messages in the present tense. Your commit message should describe what the commit, when applied, does to the code – not what you did to the code.
-
 ## License
 
 Released under [MIT](/LICENSE) by [@pjdvmalan](https://github.com/pjdvmalan).
-
-
-Add type checking: https://docs.python.org/3/library/typing.html
-
-Column for primary and secondary runs
-Run secondary in a for loop
-Insights API: Could not process request
 
 https://www.debugbear.com/blog/why-is-my-lighthouse-score-different-from-pagespeed-insights
 https://pagespeedplus.com/blog/pagespeed-insights-vs-lighthouse
 https://stackoverflow.com/questions/60153823/why-google-speed-insights-google-lighthouse-web-dev-showing-different-audit
 https://medium.com/@OPTASY.com/google-pagespeed-vs-lighthouse-how-are-they-different-and-which-tool-should-you-use-3f03270c674
-
-Logging at correct level
-
->>>> Add parent URL
-url_mgmt.processed_resource_references(resource['name'], i_type)
