@@ -9,6 +9,7 @@ import pandas as pd
 import tldextract
 
 # Sidetable accessed through the new .stb accessor on your DataFrame.
+# Adds category distribution capability to 'analysis_report()'.
 import sidetable
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
