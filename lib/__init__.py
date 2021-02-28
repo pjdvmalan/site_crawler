@@ -4,7 +4,9 @@ Initialization file for library module.
 import argparse
 import datetime
 import logging
+from shutil import rmtree
 from urllib.parse import urlparse
+import os
 
 import requests
 from usp.tree import sitemap_tree_for_homepage as site_map_tree
@@ -47,6 +49,19 @@ COLUMNS_ANALYSIS = [
 ]
 
 
+def delete_reports():
+    """Delete all reports."""
+    report_directory = 'var/'
+    for files in os.listdir(report_directory):
+        path = os.path.join(report_directory, files)
+        if path == 'var/.gitkeep':
+            continue
+        try:
+            rmtree(path)
+        except OSError:
+            os.remove(path)
+
+
 def process_args():
     """Process arguments from the CLI."""
     parser = argparse.ArgumentParser('Process website URLs referenced in sitemap.xml')
@@ -55,6 +70,7 @@ def process_args():
     parser.add_argument('-m', '--max', type=int, default=0, help='Max number of URLs to process.')
     parser.add_argument('-f', '--follow', action='store_true', help='Follow internal URLs.')
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output.')
+    parser.add_argument('-rr', '--remove_reports', action='store_true', help='Remove all reports.')
 
     return parser.parse_args()
 
