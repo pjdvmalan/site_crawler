@@ -109,7 +109,12 @@ def process_url(browser, url, follow_links, debug=False):
     """Process a single URL."""
     logging.info('Processing: %s', url)
 
-    request = requests.get(url)
+    try:
+        request = requests.get(url)
+    except requests.RequestException as ex:
+        url_mgmt.unreachable_pages(url, ex)
+        logging.error('Error loading: %s - status: %s', url, ex)
+        return {}
 
     if request.status_code != 200:
         url_mgmt.unreachable_pages(url, request.status_code)

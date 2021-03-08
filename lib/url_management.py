@@ -28,6 +28,8 @@ class UrlManagement:
 
     COLUMNS_AUDIT_RESULTS = ['url', 'id', 'title', 'finding', 'saving_ms', 'description', 'detail']
 
+    COLUMNS_UNREACHABLE_RESULTS = ['url', 'status_code', 'cnt']
+
     # Basic URL list.
     COLUMNS_BASIC = ['url']
 
@@ -137,8 +139,8 @@ class UrlManagement:
         """
         if url and resource_type:
             resource_url = self._prep_url(url)
-            resource = [resource for resource in self._resource_references_list if resource['url'] == resource_url]
 
+            resource = [resource for resource in self._resource_references_list if resource['url'] == resource_url]
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
                 return []
@@ -200,6 +202,9 @@ class UrlManagement:
         """
         if url and status_code:
             resource_url = self._prep_url(url)
+
+            self.unprocessed_pages(url, 'delete')
+
             resource = [resource for resource in self._unreachable_pages_list if resource['url'] == resource_url]
 
             if resource:
@@ -249,23 +254,23 @@ class UrlManagement:
         """Print a summary of the report to the console."""
 
         data_frame = pd.DataFrame(values, columns=columns)
+        if not data_frame.dropna().empty:
+            print('\nSummary:')
+            print(data_frame.describe())
+            print('\n--------------------------------------')
 
-        print('\nSummary:')
-        print(data_frame.describe())
-        print('\n--------------------------------------')
+            total_grouping = data_frame.groupby('grouping', as_index=True)[['total']]
+            print('Max:')
+            print(total_grouping.max())
+            print('--------------------------------------')
 
-        total_grouping = data_frame.groupby('grouping', as_index=True)[['total']]
-        print('Max:')
-        print(total_grouping.max())
-        print('--------------------------------------')
+            print('Mean:')
+            print(total_grouping.mean())
+            print('\n--------------------------------------')
 
-        print('Mean:')
-        print(total_grouping.mean())
-        print('\n--------------------------------------')
-
-        print('Category distribution:')
-        print(data_frame.stb.freq(['grouping']))
-        print('')
+            print('Category distribution:')
+            print(data_frame.stb.freq(['grouping']))
+            print('')
 
 
     def generate_report(self, file_name, columns, values):
@@ -294,6 +299,6 @@ class UrlManagement:
         self.generate_report('external_uri', self.COLUMNS_EXTERNAL_PAGES, self.external_pages())
         self.generate_report('resource_uri', self.COLUMNS_RESOURCE_REFERENCES, self.processed_resource_references())
         self.generate_report('processed_uri', self.COLUMNS_BASIC, self.processed_pages())
-        self.generate_report('unreachable_uri', self.COLUMNS_BASIC, self.unreachable_pages())
+        self.generate_report('unreachable_uri', self.COLUMNS_UNREACHABLE_RESULTS, self.unreachable_pages())
         self.generate_report('unprocessed_uri', self.COLUMNS_BASIC, self.unprocessed_pages())
         self.generate_report('audit', self.COLUMNS_AUDIT_RESULTS, self.audit_results())

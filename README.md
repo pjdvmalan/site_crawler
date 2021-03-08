@@ -111,24 +111,26 @@ Lighthouse metrics based on the following: [Performance Audits](https://web.dev/
 |--------|-------------|
 |time|Timestamp when measurement was taken.|
 |url|URL being analysed.||
-|performance||
-|accessibility||
-|best_practices||
-|seo||
-|first_contentful_paint||
-|first_contentful_paint_score||
-|speed_index||
-|speed_index_score||
-|largest_contentful_paint| The render time of the largest image or text block visible within the viewport.|
-|largest_contentful_paint_score||
-|interactive||
-|interactive_score||
-|total_blocking_time||
-|total_blocking_time_score||
-|cumulative_layout_shift||
-|cumulative_layout_shift_score||
-|third_party_wasted||
-|third_party_wasted_size||
+|[performance](https://web.dev/performance-scoring/)| Overall performance score. |
+|accessibility| A measure of compliance. |
+|best_practices| A measure of compliance.|
+|seo| A measure of compliance. |
+|[first_contentful_paint](https://web.dev/first-contentful-paint/)| Measures how long it takes the browser to render the first piece of DOM content after a user navigates to your page. (Ideally within 2 seconds.)|
+|first_contentful_paint_score| % |
+|[speed_index](https://web.dev/speed-index/)| Speed Index measures how quickly content is visually displayed during page load. |
+|speed_index_score | % |
+|[largest_contentful_paint](https://web.dev/lighthouse-largest-contentful-paint/)| The render time of the largest image or text block visible within the viewport. (Ideally within 2.5 seconds.) |
+|largest_contentful_paint_score| % |
+|[interactive](https://web.dev/interactive/) | A measure of how long it takes a page to become fully interactive (Ideally less than 3.8 seconds).|
+|interactive_score | % |
+|[total_blocking_time](https://web.dev/lighthouse-total-blocking-time/)| measures the total amount of time that a page is blocked from responding to user input, such as mouse clicks, screen taps, or keyboard presses. |
+|total_blocking_time_score| % |
+|[cumulative_layout_shift](https://web.dev/cls/)| A measure of the movement of visible elements within the viewport.(Ideally less than 0.1 units.)|
+|cumulative_layout_shift_score| % |
+|[first_input_delay](https://web.dev/lighthouse-max-potential-fid/) | The maximum potential First Input Delay that your users could experience is the duration of the longest task. (Ideally less than 130 milliseconds.) |
+|first_input_delay_score| % |
+|[third_party_wasted](https://web.dev/third-party-summary/)| Measure of the impact of reduntant third-party code on load performance. (Measured in seconds).|
+|third_party_wasted_size| Measured in kilo bytes.|
 |grouping|The grouping assigned to thie URL.|
 |server|Server responese time.|
 |browser|Browser processing time.|
@@ -158,7 +160,7 @@ NOTES:
 
 - Time in seconds.
 - Size in kilobytes.
-- Location: `/var/{website_domain}/date/analysis_report_{timestamp}.csv`
+- Location: `/var/{website_domain}/date/analysis_{timestamp}.csv`
 
 ### 2. Resource References
 
@@ -170,7 +172,7 @@ NOTES:
 
 NOTES:
 
-- Location: `/var/{website_domain}/resource_references_report_{timestamp}.csv`
+- Location: `/var/{website_domain}/date/resource_uri_{timestamp}.csv`
 
 ## Resources
 

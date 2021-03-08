@@ -51,18 +51,16 @@ def main():
                 total = len(url_mgmt.unprocessed_pages(clone=False)) + proc_cnt
 
                 page = url_mgmt.unprocessed_pages(clone=False)[0]
-                results.append(process_url(browser, page, args.follow, args.debug))
+                page_results = process_url(browser, page, args.follow, args.debug)
+                if page_results:
+                    results.append(page_results)
 
                 print('Processed: {}/{}'.format(proc_cnt, total))
 
             else:
                 break
 
-        if results:
-            report_results(results)
-
-        else:
-            logging.warning('No processed URLs to report on.')
+        report_results(results)
 
     except Exception as ex:
         logging.error('Exception: %s', ex)
