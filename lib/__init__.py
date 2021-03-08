@@ -42,7 +42,8 @@ COLUMNS_ANALYSIS = [
     'time', 'url', 'performance', 'accessibility', 'best_practices', 'seo', 'first_contentful_paint',
     'first_contentful_paint_score', 'speed_index', 'speed_index_score', 'largest_contentful_paint',
     'largest_contentful_paint_score', 'interactive', 'interactive_score', 'total_blocking_time',
-    'total_blocking_time_score', 'cumulative_layout_shift', 'cumulative_layout_shift_score', 'third_party_wasted',
+    'total_blocking_time_score', 'cumulative_layout_shift', 'cumulative_layout_shift_score', 'first_input_delay',
+    'first_input_delay_score', 'third_party_wasted',
     'third_party_wasted_size', 'grouping', 'server', 'browser', 'usable', 'total', 'data_transfer', 'redirected', 'dom',
     'img', 'img_sec', 'img_size', 'css', 'css_sec', 'css_size', 'script', 'script_sec', 'script_size', 'font',
     'font_sec', 'font_size', 'xhrt', 'xhrt_sec', 'xhrt_size'
@@ -127,6 +128,7 @@ def process_url(browser, url, follow_links, debug=False):
             grouping = key
 
     url_path = urlparse(url).path
+    url_path = url_path if url_path else 'root'
 
     timing_api_metrics = browser.execute_script(JS_PAGE_METRICS)
     google_insights_metrics = google_insights.page_performance(url, debug)

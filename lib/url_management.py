@@ -26,6 +26,8 @@ class UrlManagement:
     # Resource reference CSV output columns.
     COLUMNS_EXTERNAL_PAGES = ['url', 'cnt']
 
+    COLUMNS_AUDIT_RESULTS = ['url', 'id', 'title', 'finding', 'saving_ms', 'description', 'detail']
+
     # Basic URL list.
     COLUMNS_BASIC = ['url']
 
@@ -45,6 +47,9 @@ class UrlManagement:
 
         # List of pages referenced outside of domain.
         self._external_pages_list = []
+
+        # List of audit results.
+        self._audit_results_list = []
 
         # Domain name to collect from - everything else is ignored.
         self._domain_name = ''
@@ -214,6 +219,31 @@ class UrlManagement:
         return list(self._unreachable_pages_list)
 
 
+    def audit_results(self, url=None, item=None, detail=None):
+        """
+        Manage access to '_audit_results_list' variable.
+        """
+
+        if url:
+            resource_url = self._prep_url(url)
+
+            self._audit_results_list.append(
+                {
+                    'url': resource_url,
+                    'id': item.get('id', 'No ID'),
+                    'title': item.get('title', 'No Title'),
+                    'finding': item.get('displayValue', ''),
+                    'saving_ms': item.get('overallSavingsMs', 0),
+                    'description': item['description'],
+                    'detail': detail
+                }
+            )
+
+            return []
+
+        return list(self._audit_results_list)
+
+
     @staticmethod
     def analysis_report(columns, values):
         """Print a summary of the report to the console."""
@@ -266,3 +296,4 @@ class UrlManagement:
         self.generate_report('processed_uri', self.COLUMNS_BASIC, self.processed_pages())
         self.generate_report('unreachable_uri', self.COLUMNS_BASIC, self.unreachable_pages())
         self.generate_report('unprocessed_uri', self.COLUMNS_BASIC, self.unprocessed_pages())
+        self.generate_report('audit', self.COLUMNS_AUDIT_RESULTS, self.audit_results())

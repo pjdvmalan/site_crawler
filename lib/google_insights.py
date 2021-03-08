@@ -39,6 +39,8 @@ class GoogleInsights:
 
         url_path = urlparse(url).path
         url_path = url_path if url_path else '_no_path'
+        url_path = url_path.replace('/', '_')
+
         file_name = '{}{}_{}_insights.json'.format(dir_path, url_path[1:], datetime.datetime.now().strftime('%H-%M'))
         file = open(file_name, "w")
         json.dump(res, file, indent=4)
@@ -57,8 +59,8 @@ class GoogleInsights:
 
         q_params = { 'url': url,
             'key': config.GOOGLE_PS_API_KEY,
-            'strategy': 'DESKTOP', # MOBILE
-            'category':['PERFORMANCE','ACCESSIBILITY','BEST_PRACTICES','SEO'],
+            'strategy': 'DESKTOP', # 'DESKTOP', # MOBILE
+            'category': ['PERFORMANCE','ACCESSIBILITY','BEST_PRACTICES','SEO'],
             'locale': 'en'
             }
 

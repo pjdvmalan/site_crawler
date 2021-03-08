@@ -33,41 +33,59 @@ def process_insights_metrics(insights_metrics):
     metrics['seo'] = fmt(i_categories["seo"]["score"] * 100)
 
     i_audits = insights_metrics["lighthouseResult"]["audits"]
-    # Performance
-    # firstContentfulPaint : First Contentful Paint (FCP) marks the time at which the first text or image is
-    # painted.
     metrics['first_contentful_paint'] = fmt(i_audits["first-contentful-paint"]["numericValue"] / MILLISECONDS)
     metrics['first_contentful_paint_score'] = fmt(i_audits["first-contentful-paint"]["score"]*100)
-
-    # speedIndex : Speed Index shows how quickly the contents of a page are visibly populated.
     metrics['speed_index'] = fmt(i_audits["speed-index"]["numericValue"] / MILLISECONDS)
     metrics['speed_index_score'] = fmt(i_audits["speed-index"]["score"]*100)
-
-    # firstMeaningfulPaint : First Meaningful Paint measures when the primary content of a page is visible.
     metrics['largest_contentful_paint'] = fmt(i_audits["largest-contentful-paint"]["numericValue"] / MILLISECONDS)
     metrics['largest_contentful_paint_score'] = fmt(i_audits["largest-contentful-paint"]["score"]*100)
-
-    # interactive : Time to interactive is the amount of time it takes for the page to become fully interactive.
     metrics['interactive'] = fmt(i_audits["interactive"]["numericValue"] / MILLISECONDS)
     metrics['interactive_score'] = fmt(i_audits["interactive"]["score"]*100)
-
-    # totalBlockingTime : Sum of all time periods between FCP and Time to Interactive, when task length exceeded
-    # 50ms, expressed in milliseconds.
     metrics['total_blocking_time'] = fmt(i_audits["total-blocking-time"]["numericValue"] / MILLISECONDS)
     metrics['total_blocking_time_score'] = fmt(i_audits["total-blocking-time"]["score"]*100)
-
-    # cumulativeLayoutShift : new in LightHouse 6, "Cumulative Layout Shift (CLS)" measures the visual stability
-    # and quantifies how much a page’s content visually shifts around.
     # Note: Already normalised to seconds.
     metrics['cumulative_layout_shift'] = fmt(i_audits["cumulative-layout-shift"]["numericValue"])
     metrics['cumulative_layout_shift_score'] = fmt(i_audits["cumulative-layout-shift"]["score"]*100)
-
+    # Keep in milliseconds.
+    metrics['first_input_delay'] = (i_audits["max-potential-fid"]["numericValue"])
+    metrics['first_input_delay_score'] = fmt(i_audits["max-potential-fid"]["score"]*100)
     # Third party blocking calls.
-    third_party = i_audits["third-party-summary"]["details"]["summary"]
-    metrics['third_party_wasted'] = fmt(third_party["wastedMs"] / MILLISECONDS)
-    metrics['third_party_wasted_size'] = fmt(third_party["wastedBytes"] / BYTE_TO_KILOBYTE)
+    # third_party = i_audits["third-party-summary"]["details"]["summary"]
+    # metrics['third_party_wasted'] = fmt(third_party["wastedMs"] / MILLISECONDS)
+    # metrics['third_party_wasted_size'] = fmt(third_party["wastedBytes"] / BYTE_TO_KILOBYTE)
 
     return metrics
+
+
+def _process_audit_item(url, audit_item, url_mgmt):
+    """Process the identified item."""
+    details = audit_item.get('details')
+    if details:
+        for item in details['items']:
+            url_mgmt.audit_results(url, audit_item, item)
+
+
+def process_audit(url, insights_metrics, url_mgmt):
+    """Identify areas of improvement."""
+    i_audits = insights_metrics["lighthouseResult"]["audits"]
+    for key in i_audits:
+        audit_item = i_audits[key]
+        if audit_item['scoreDisplayMode'] == 'notApplicable':
+            continue
+
+        if audit_item['scoreDisplayMode'] == 'binary' and audit_item['score'] == 0:
+            _process_audit_item(url, audit_item, url_mgmt)
+
+        elif audit_item['scoreDisplayMode'] == 'binary' and audit_item['score'] <= 0.8:
+            _process_audit_item(url, audit_item, url_mgmt)
+
+        elif audit_item['scoreDisplayMode'] == 'numeric' and audit_item['score'] <= 0.8:
+            _process_audit_item(url, audit_item, url_mgmt)
+
+        # elif audit_item['scoreDisplayMode'] == 'binary' and audit_item['score'] <= 0.8:
+        #     _process_audit_item(url, audit_item, url_mgmt)
+        # elif key == 'render-blocking-resources' and audit_item['score'] < 0.8:
+        #     _process_audit_item(url, audit_item, url_mgmt)
 
 
 def process_timing_metrics(timing_metrics):
@@ -160,11 +178,12 @@ def process_page_metrics(source_url, timing_metrics, insights_metrics, url_mgmt)
 
     metrics = {}
 
-    # General
+    # Google Page Speed Insights.
     if insights_metrics:
         metrics = process_insights_metrics(insights_metrics)
+        process_audit(source_url, insights_metrics, url_mgmt)
 
-    # Page Timing Metrics
+    # Page Timing Metrics.
     if timing_metrics:
         metrics.update(process_timing_metrics(timing_metrics))
         metrics.update(process_page_resources(source_url, timing_metrics, url_mgmt))
