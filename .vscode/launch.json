@@ -9,7 +9,7 @@
             "console": "integratedTerminal",
             "args": [
                 "-m",
-                "3"
+                "1"
             ]
         }
     ]

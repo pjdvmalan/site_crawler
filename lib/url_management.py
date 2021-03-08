@@ -9,6 +9,7 @@ import pandas as pd
 import tldextract
 
 # Sidetable accessed through the new .stb accessor on your DataFrame.
+# Adds category distribution capability to 'analysis_report()'.
 import sidetable
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
@@ -24,6 +25,10 @@ class UrlManagement:
 
     # Resource reference CSV output columns.
     COLUMNS_EXTERNAL_PAGES = ['url', 'cnt']
+
+    COLUMNS_AUDIT_RESULTS = ['url', 'id', 'title', 'finding', 'saving_ms', 'description', 'detail']
+
+    COLUMNS_UNREACHABLE_RESULTS = ['url', 'status_code', 'cnt']
 
     # Basic URL list.
     COLUMNS_BASIC = ['url']
@@ -44,6 +49,9 @@ class UrlManagement:
 
         # List of pages referenced outside of domain.
         self._external_pages_list = []
+
+        # List of audit results.
+        self._audit_results_list = []
 
         # Domain name to collect from - everything else is ignored.
         self._domain_name = ''
@@ -88,13 +96,13 @@ class UrlManagement:
                     if page_url in self._un_processed_pages_list:
                         if action == 'delete':
                             self._un_processed_pages_list.remove(page_url)
-                            return
+                            return []
                     else:
                         self._un_processed_pages_list.append(page_url)
                 else:
                     self.external_pages(page_url)
 
-            return
+            return []
 
         if clone:
             return list(self._un_processed_pages_list)
@@ -112,7 +120,7 @@ class UrlManagement:
             if page_url not in self._processed_pages_list:
                 self._processed_pages_list.append(page_url)
 
-            return
+            return []
 
         return list(self._processed_pages_list)
 
@@ -131,11 +139,11 @@ class UrlManagement:
         """
         if url and resource_type:
             resource_url = self._prep_url(url)
-            resource = [resource for resource in self._resource_references_list if resource['url'] == resource_url]
 
+            resource = [resource for resource in self._resource_references_list if resource['url'] == resource_url]
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return
+                return []
 
             self._resource_references_list.append(
                 {
@@ -146,7 +154,7 @@ class UrlManagement:
                 }
             )
 
-            return
+            return []
 
         return list(self._resource_references_list)
 
@@ -167,7 +175,7 @@ class UrlManagement:
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return
+                return []
 
             self._external_pages_list.append(
                 {
@@ -176,7 +184,7 @@ class UrlManagement:
                 }
             )
 
-            return
+            return []
 
         return list(self._external_pages_list)
 
@@ -194,11 +202,14 @@ class UrlManagement:
         """
         if url and status_code:
             resource_url = self._prep_url(url)
+
+            self.unprocessed_pages(url, 'delete')
+
             resource = [resource for resource in self._unreachable_pages_list if resource['url'] == resource_url]
 
             if resource:
                 resource[0]['cnt'] = resource[0]['cnt'] + 1
-                return
+                return []
 
             self._unreachable_pages_list.append(
                 {
@@ -208,9 +219,34 @@ class UrlManagement:
                 }
             )
 
-            return
+            return []
 
         return list(self._unreachable_pages_list)
+
+
+    def audit_results(self, url=None, item=None, detail=None):
+        """
+        Manage access to '_audit_results_list' variable.
+        """
+
+        if url:
+            resource_url = self._prep_url(url)
+
+            self._audit_results_list.append(
+                {
+                    'url': resource_url,
+                    'id': item.get('id', 'No ID'),
+                    'title': item.get('title', 'No Title'),
+                    'finding': item.get('displayValue', ''),
+                    'saving_ms': item.get('overallSavingsMs', 0),
+                    'description': item['description'],
+                    'detail': detail
+                }
+            )
+
+            return []
+
+        return list(self._audit_results_list)
 
 
     @staticmethod
@@ -218,32 +254,37 @@ class UrlManagement:
         """Print a summary of the report to the console."""
 
         data_frame = pd.DataFrame(values, columns=columns)
+        if not data_frame.dropna().empty:
+            print('\nSummary:')
+            print(data_frame.describe())
+            print('\n--------------------------------------')
 
-        print('\nSummary:')
-        print(data_frame.describe())
-        print('\n--------------------------------------')
+            total_grouping = data_frame.groupby('grouping', as_index=True)[['total']]
+            print('Max:')
+            print(total_grouping.max())
+            print('--------------------------------------')
 
-        total_grouping = data_frame.groupby('grouping', as_index=True)[['total']]
-        print('Max:')
-        print(total_grouping.max())
-        print('--------------------------------------')
+            print('Mean:')
+            print(total_grouping.mean())
+            print('\n--------------------------------------')
 
-        print('Mean:')
-        print(total_grouping.mean())
-        print('\n--------------------------------------')
+            print('Category distribution:')
+            print(data_frame.stb.freq(['grouping']))
+            print('')
 
-        print('Category distribution:')
-        print(data_frame.stb.freq(['grouping']))
-        print('')
 
     def generate_report(self, file_name, columns, values):
         """Output URL lists to CSV."""
         if values:
-            dir_path = 'var/{}/'.format(self._domain_name) if self._domain_name else 'var/'
-            if not os.path.exists(dir_path):
-                os.mkdir(dir_path)
+            if self._domain_name:
+                dir_path = 'var/{}/{}/'.format(self._domain_name, datetime.datetime.now().strftime('%Y-%m-%d'))
+            else:
+                dir_path = 'var/{}/'.format(datetime.datetime.now().strftime('%Y-%m-%d'))
 
-            file_name = '{}_{}.csv'.format(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), file_name)
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+
+            file_name = '{}_{}.csv'.format(file_name, datetime.datetime.now().strftime('%H-%M-%S'))
             full_path = '{}{}'.format(dir_path, file_name)
 
             data_frame = pd.DataFrame(values, columns=columns)
@@ -258,5 +299,6 @@ class UrlManagement:
         self.generate_report('external_uri', self.COLUMNS_EXTERNAL_PAGES, self.external_pages())
         self.generate_report('resource_uri', self.COLUMNS_RESOURCE_REFERENCES, self.processed_resource_references())
         self.generate_report('processed_uri', self.COLUMNS_BASIC, self.processed_pages())
-        self.generate_report('unreachable_uri', self.COLUMNS_BASIC, self.unreachable_pages())
+        self.generate_report('unreachable_uri', self.COLUMNS_UNREACHABLE_RESULTS, self.unreachable_pages())
         self.generate_report('unprocessed_uri', self.COLUMNS_BASIC, self.unprocessed_pages())
+        self.generate_report('audit', self.COLUMNS_AUDIT_RESULTS, self.audit_results())
