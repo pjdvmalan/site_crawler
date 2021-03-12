@@ -163,7 +163,7 @@ def process_sitemap(site_url, max_urls):
 
     for page in site_map.all_pages():
         page_url = page.url.lower()
-        if page_url in url_mgmt.processed_pages() or page_url in config.EXCLUDE_PATHS:
+        if page_url in url_mgmt.processed_pages():
             continue
 
         # max_urls apply only to non duplicate/excluded URLs.
