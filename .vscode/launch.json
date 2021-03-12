@@ -8,8 +8,8 @@
             "program": "${workspaceFolder}/site_crawler.py",
             "console": "integratedTerminal",
             "args": [
-                "-m",
-                "1"
+                "-u",
+                "https://www.getsmarter.com/career-advice/become-chief-operations-officer-coo"
             ]
         }
     ]

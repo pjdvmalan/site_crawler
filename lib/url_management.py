@@ -12,6 +12,8 @@ import tldextract
 # Adds category distribution capability to 'analysis_report()'.
 import sidetable
 
+from etc import config
+
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 pd.set_option('display.precision', 2)
@@ -72,6 +74,13 @@ class UrlManagement:
         return url
 
 
+    @staticmethod
+    def _list_item_starts_with(item, item_list):
+        """Check if a list item starts with a certain value."""
+        res = [i for i in item_list if i.startswith(item)]
+        return bool(res)
+
+
     def set_domain_name(self, domain_name):
         "Set the domain name to filter on."
         self._domain_name = self._prep_url(domain_name)
@@ -92,7 +101,7 @@ class UrlManagement:
                 if domain_name == '' or '@' in page_url:
                     continue
 
-                if domain_name == self._domain_name:
+                if domain_name == self._domain_name and not self._list_item_starts_with(page_url, config.EXCLUDE_PATHS):
                     if page_url in self._un_processed_pages_list:
                         if action == 'delete':
                             self._un_processed_pages_list.remove(page_url)

@@ -2,6 +2,7 @@
 """
 Site crawler application.
 """
+import sys
 
 import traceback
 import tldextract
@@ -55,7 +56,11 @@ def main():
                 if page_results:
                     results.append(page_results)
 
-                print('Processed: {}/{}'.format(proc_cnt, total))
+                # Print progress information - to be improved.
+                sys.stdout.write('\033[2K\033[1G')
+                sys.stdout.flush()
+                print('({}/{})| {}'.format(proc_cnt, total, page.partition(domain_name )[2]), end='')
+                sys.stdout.flush()
 
             else:
                 break
